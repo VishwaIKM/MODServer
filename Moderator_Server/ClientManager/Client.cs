@@ -101,16 +101,23 @@ namespace Moderator_Server.ClientManager
                             break;
 
                         case Constant.Flag.HedgerTrdResponse :
-                            Receive(ref ReceivingBuffer, len - 8);
+                           Receive(ref ReceivingBuffer, len - 8);
                             HedgerTradeResponse resp = new HedgerTradeResponse();
                             resp.GetData(ReceivingBuffer);
 
-                            long tm = DateTime.Now.Ticks;
-                            TradeMatchResponse match = new TradeMatchResponse { NeatId = resp.neatId, Time = tm, Token = resp.token, TradePrice = resp.tradePrice, TradeQnty = resp.tradeQnty };
+                            //long tm = DateTime.Now.Ticks;
+                            //DateTime now = DateTime.Now;
+                           // DateTime dtss = new DateTime();
+                           // dtss = Convert.ToDateTime("1/1/1980 12:00:00 AM");
+                            //TimeSpan diffn = (now - dtss);
+                           // int secn = (int)diffn.TotalSeconds;
+
+
+                            TradeMatchResponse match = new TradeMatchResponse { NeatId = resp.neatId, Time = resp.tradeTime, Token = resp.token, TradePrice = resp.tradePrice, TradeQnty = resp.tradeQnty };
                             Program.Gui.tradeServer.clntManager.SendTradesToClient(Constant.Flag.TradeMatch, match.GetBytes());
 
-                            TradeManagerResponse mngr = new TradeManagerResponse { ClientCode = resp.userCode.ToCharArray(), Time = tm, Token = resp.token, TradePrice = resp.tradePrice, TradeQnty = resp.tradeQnty };
-                            Program.Gui.tradeServer.clntManager.SendTradesToClient(Constant.Flag.TradeManager, match.GetBytes());
+                            TradeManagerResponse mngr = new TradeManagerResponse { UserCode = resp.userCode, TradeTime = resp.tradeTime, Token = resp.token, TradePrice = resp.tradePrice, TradeQnty = resp.tradeQnty };
+                            Program.Gui.tradeServer.clntManager.SendTradesToClient(Constant.Flag.TradeManager, mngr.GetBytes());
 
                             break;
 
@@ -212,7 +219,7 @@ namespace Moderator_Server.ClientManager
             }
             else
             {
-                TradeServer.logger.WriteLine("Cllient Disconnected :" +ClientName);
+                TradeServer.logger.WriteLine("Cllient Disconnected , Coul Not Send Trades:" +ClientName);
                 return false;
             }
         }

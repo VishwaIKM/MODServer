@@ -6,6 +6,7 @@ using System.Threading;
 using System.Net.Sockets;
 using System.IO;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace Moderator_Server.ClientManager
 {
@@ -13,8 +14,10 @@ namespace Moderator_Server.ClientManager
     {
         TcpListener clientListner;
         Thread clientSessionChecker;
+        Thread SendPrevious;
         bool ConnectivityBool;
         private readonly object locker = new object();
+        private readonly object lockerHedge = new object();
         private static readonly object clientLock = new object();
         private Dictionary<int, Client> ClientDataBase = new Dictionary<int, Client>();
         public Manager()
@@ -99,6 +102,11 @@ namespace Moderator_Server.ClientManager
             if (clientSessionChecker != null && clientSessionChecker.IsAlive)
             {
                 clientSessionChecker.Abort();
+            }
+            if (SendPrevious != null && SendPrevious.IsAlive)
+            {
+                SendPrevious.Abort();
+                SendPrevious = null;
             }
         }
         //public void SendTradeToFetcher(byte[] data)
@@ -275,6 +283,11 @@ namespace Moderator_Server.ClientManager
                 #endregion
 
                 client.InitiateReceiveLoop();
+
+                DisposePrevious();
+                SendPrevious = new Thread(() => SendPreviousTrades(client.ClientName));
+                SendPrevious.Start();
+
                 //HedgerTradeResponse respn = new HedgerTradeResponse { exp = 1309617000, legNo = 2, neatId = 34561, ordNo = 1987642, pfBuySell = 1, pfId = 5, ratios = "1:2:1:2", StgId = 12, stgType = 1, token = 35000, tokens = "35000:56771:0:0", tradeId = 1234987, trdPrice = 23.5F, trdQnty = 75, userCode = "Ad007" };
                 //SendTradesToClient(5001, respn.GetBytes());
             }
@@ -309,15 +322,157 @@ namespace Moderator_Server.ClientManager
         }
         public void SendTradesToRmsHedger(string clientName, int neat, int stgCode, byte[] data)
         {
-            foreach (int clId in ClientDataBase.Keys)
+            lock(lockerHedge)
             {
-                if (ClientDataBase[clId].ClientName.Contains(clientName))
+                foreach (int clId in ClientDataBase.Keys)
                 {
-                    var detail = ClientDataBase[clId];
-                    if(detail.NeatIdList.Contains(neat) && detail.StrategyIdList.Contains(stgCode))
-                        ClientDataBase[clId].Reply(data, data.Length);
+                    if (ClientDataBase[clId].ClientName.Contains(clientName))
+                    {
+                        var detail = ClientDataBase[clId];
+                        if (detail.NeatIdList.Contains(neat) && detail.StrategyIdList.Contains(stgCode))
+                            ClientDataBase[clId].Reply(data, data.Length);
+                    }
                 }
             }
+        }
+        void DisposePrevious()
+        {
+            try
+            {
+                if (SendPrevious != null && SendPrevious.IsAlive)
+                {
+                    SendPrevious.Abort();
+                    SendPrevious = null;
+                }
+            }
+            catch { };
+        }
+        private void SendPreviousTrades(string clientname)
+        {
+            #region 
+            try
+            {
+                string tmpPath = Application.StartupPath + "\\" + clientname + "tmp.txt";
+                File.Copy(Program.Gui.tradeServer.ModeratorTradeFile, tmpPath, true);
+
+                if (clientname == Constant.Flag.TradeMatch || clientname == Constant.Flag.Hedger)
+                {
+                    byte[] data = new byte[8];
+
+                    BitConverter.GetBytes(8).CopyTo(data, 0);
+                    BitConverter.GetBytes(701).CopyTo(data, 4);
+
+                    SendTradesToClient(clientname, data);
+                }
+
+                using (StreamReader sr = new StreamReader(tmpPath))
+                {
+                    while (sr.Peek() > 0)
+                    {
+                        string line = sr.ReadLine();
+                        string[] arr = line.Split(',');
+
+                        int tradeId = Convert.ToInt32(arr[0].Trim());
+                        int neatId = Convert.ToInt32(arr[2]);
+                        string userCode = arr[1];
+                        int trdqnty = Convert.ToInt32(arr[9]);
+                        float price = Convert.ToSingle(arr[10]);
+                        int token = Convert.ToInt32(arr[13]);
+                        DateTime tradeTim = Convert.ToDateTime(arr[11]);
+                        
+                        if (clientname == Constant.Flag.Hedger)
+                        {
+                            HedgerPreviousTrades trd = new HedgerPreviousTrades();
+
+                            trd.tradeId = tradeId;
+                            trd.userCode = userCode;
+                            trd.neatId = neatId;
+                            trd.ordNo = Convert.ToInt64(arr[3]);
+                            trd.trdQnty = trdqnty;
+                            trd.trdPrice = price;
+                            trd.token = token;
+
+                            DateTime Expdt = Convert.ToDateTime(arr[8]);
+                            DateTime tradeTime = tradeTim;
+
+                            DateTime dtss = new DateTime();
+                            dtss = Convert.ToDateTime("1/1/1980 12:00:00 AM");
+                            TimeSpan Expdiffn = (Expdt - dtss);
+                            int secn = (int)Expdiffn.TotalSeconds;
+
+                            TimeSpan tradediff = (tradeTime - dtss);
+                            int tradesec = (int)tradediff.TotalSeconds;
+
+                            trd.Expiry = secn;
+                            trd.tradeTime = tradesec;
+                            trd.pfId = Convert.ToInt32(arr[15]);
+                            trd.stgType = Convert.ToInt32(arr[16]);
+                            trd.pfBuySell = Convert.ToInt32(arr[17]);
+                            trd.legNo = Convert.ToInt32(arr[18]);
+                            trd.stgId = Convert.ToInt32(arr[14]);
+                            trd.tokens = arr[20];
+                            trd.ratios = arr[19];
+
+                            var dataa = trd.GetBytes();
+                            SendTradesToRmsHedger(Constant.Flag.Hedger, trd.neatId, trd.stgType, dataa);
+
+                        }
+                        else if(clientname == Constant.Flag.TradeMatch)
+                        {
+                            TradeMatchResponse matchResp = new TradeMatchResponse();
+                            
+                            DateTime tradeTime = tradeTim;
+
+                            DateTime dtss = new DateTime();
+                            dtss = Convert.ToDateTime("1/1/1980 12:00:00 AM");
+                            TimeSpan tradediff = (tradeTime - dtss);
+                            int tradesec = (int)tradediff.TotalSeconds;
+
+                            matchResp.Time = tradesec;
+                            matchResp.NeatId = neatId;
+                            matchResp.Token = token;
+                            matchResp.tradeId = tradeId;
+                            matchResp.TradeQnty = trdqnty;
+                            matchResp.TradePrice = price;
+                            
+                            SendTradesToClient(Constant.Flag.TradeMatch, matchResp.GetBytes());
+
+                        }
+                        else if(clientname == Constant.Flag.TradeManager)
+                        {
+                            DateTime tradeTime = tradeTim;
+
+                            DateTime dtss = new DateTime();
+                            dtss = Convert.ToDateTime("1/1/1980 12:00:00 AM");
+                            TimeSpan tradediff = (tradeTime - dtss);
+                            int tradesec = (int)tradediff.TotalSeconds;
+
+                            TradeManagerResponse mngr = new TradeManagerResponse
+                            { TradeTime = tradesec, UserCode = userCode, Token = token, TradePrice = price, TradeQnty = trdqnty };
+
+                            SendTradesToClient(Constant.Flag.TradeManager, mngr.GetBytes());
+
+                        }
+                    }
+                }
+                File.Delete(tmpPath);
+                if (clientname == Constant.Flag.TradeMatch || clientname == Constant.Flag.Hedger)
+                {
+                    byte[] data = new byte[8];
+
+                    BitConverter.GetBytes(8).CopyTo(data, 0);
+                    BitConverter.GetBytes(702).CopyTo(data, 4);
+
+                    SendTradesToClient(clientname, data);
+                }
+            }
+            catch (Exception ex)
+            {
+                TradeServer.logger.WriteError("Error in SendPreviousTrades :" + ex);
+                Debug.WriteLine("Error in SendPreviousTrades :" + ex);
+            }
+
+            #endregion
         }
     }
 }

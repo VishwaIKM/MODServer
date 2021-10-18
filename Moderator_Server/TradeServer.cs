@@ -14,16 +14,20 @@ namespace Moderator_Server
         //Instances
 
         ConcurrentQueue<byte[]> ModeratorTardeQueue = new ConcurrentQueue<byte[]>();
+        List<int> TradeIdList = new List<int>();
 
         private Thread DequeuThreadMod;
         bool dequBool = true;
         public static Logger logger;
+        public Contract contract;
         long ModTradeCount = 0;
+        private readonly object portfolioMainSync = new object();
         public int Port { get; set; }
         public string Interface { get; set; }
         public string OutPath { get; set; }
+        public string ModeratorTradeFile { get; set; }
+        public string ContractPath { get; set; }
         
-        string ModeratorTradeFile;
         public TradeWriter ModeratorTradeWriter;
 
         public Backend.ServerController serverController;
@@ -53,13 +57,23 @@ namespace Moderator_Server
                 logger.WriteLine("Logging started.");
             }
             LoadTradeServerdetails();
+            contract = new Contract();
+            string pathcntr = ContractPath + "\\contract.txt";
+            if (!contract.CheckContractFile(pathcntr))
+            {
+                MessageBox.Show("Update Contract.txt");
+                Environment.Exit(0);
+            }
+            contract.LoadTokenDeatils(pathcntr);
+
+
             serverController = new Backend.ServerController();
             string path = Constant.path.startUpPath + "\\ModeratorDetail.txt";
             string clnPath = Constant.path.startUpPath + "\\UserDb.csv";
             serverController.LoadServerDetails(path);
             clntManager = new ClientManager.Manager();
             clntManager.LoadClientDetails(clnPath);
-            ModeratorTradeFile = OutPath + $"TrdModerator_{DateTime.Now.ToString("ddMMMyyyy")}.txt";
+            ModeratorTradeFile = OutPath + $"Out_{DateTime.Now.ToString("d_M")}.txt";
             ModeratorTradeWriter = new TradeWriter(ModeratorTradeFile);
             ModeratorTradeWriter.Start();
 
@@ -86,6 +100,7 @@ namespace Moderator_Server
                 Interface = ini.Read("TRADESERVER", "IP");
                 Port = ini.Read_int("TRADESERVER", "PORT");
                 OutPath = ini.Read("TRADESERVER", "OUTPATH");
+                ContractPath = ini.Read("TRADESERVER", "CONTRACT");
 
                 if (!Directory.Exists(OutPath))
                     TradeServer.logger.WriteError("OutPath does not exists");
@@ -118,8 +133,12 @@ namespace Moderator_Server
         }
         public void AddTradeToModeratorQueue(byte[] data)
         {
-            if(data != null)
-               ModeratorTardeQueue.Enqueue(data);
+            // Need Locking as multiple threads will add request to queue
+            lock(portfolioMainSync)
+            {
+                if (data != null)
+                    ModeratorTardeQueue.Enqueue(data);
+            }
         }
         private void EmptyModeratorQueue()
         {
@@ -136,25 +155,73 @@ namespace Moderator_Server
                             {
                                 HedgerTradeResponse resp = new HedgerTradeResponse();
                                 resp.GetData(data);
-
-                                clntManager.SendTradesToRmsHedger(Constant.Flag.Hedger, resp.neatId, resp.stgType, data);
                                 
-                                TradeMatchResponse matchResp = new TradeMatchResponse { Time = resp.tradeTime, NeatId = resp.neatId, Token = resp.token, TradeQnty = resp.trdQnty, TradePrice = resp.trdPrice };
-                                   
-                                clntManager.SendTradesToClient(Constant.Flag.TradeMatch, matchResp.GetBytes());
 
-                                TradeManagerResponse mngr = new TradeManagerResponse
-                                { Time = resp.tradeTime, ClientCode = resp.userCode.ToCharArray(), Token = resp.token, TradePrice = resp.trdPrice, TradeQnty = resp.trdQnty };
-                                clntManager.SendTradesToClient(Constant.Flag.TradeManager, mngr.GetBytes());
+                                if (!TradeIdList.Contains(resp.tradeId))
+                                {
+                                    TradeIdList.Add(resp.tradeId);
 
-                                DateTime dt = Constant.Flag.GetDateFromSeconds(resp.Expiry);
-                                string tradeLog = $"{resp.userCode.Trim()},{resp.neatId},{resp.ordNo.ToString()},{resp.token},{resp.trdQnty},{(resp.trdPrice).ToString("0.00")},{ dt.ToString("dd MMM yyyy").ToUpper()},{resp.tradeId},{resp.pfId},{resp.stgType},{resp.pfBuySell},{resp.legNo},{resp.ratios.Trim()},{resp.tokens.Trim()}";
+                                    byte[] HedgerData = new byte[110];
+                                    BitConverter.GetBytes(110).CopyTo(HedgerData, 0);
+                                    BitConverter.GetBytes(95).CopyTo(HedgerData, 4);
+                                    data.CopyTo(HedgerData, 8);
 
-                                ModTradeCount++;
-                                Program.Gui.tradeServer.ModeratorTradeWriter.WriteLine(tradeLog);
-                                //if(ModTradeCount % 50 == 0)
+
+                                    clntManager.SendTradesToRmsHedger(Constant.Flag.Hedger, resp.neatId, resp.stgType, HedgerData);
+
+                                    TradeMatchResponse matchResp = new TradeMatchResponse { Time = resp.tradeTime, NeatId = resp.neatId, Token = resp.token, TradeQnty = resp.trdQnty, TradePrice = resp.trdPrice, tradeId = resp.tradeId };
+
+                                    clntManager.SendTradesToClient(Constant.Flag.TradeMatch, matchResp.GetBytes());
+
+                                    TradeManagerResponse mngr = new TradeManagerResponse
+                                    { TradeTime = resp.tradeTime, UserCode = resp.userCode, Token = resp.token, TradePrice = resp.trdPrice, TradeQnty = resp.trdQnty };
+
+                                    clntManager.SendTradesToClient(Constant.Flag.TradeManager, mngr.GetBytes());
+
+                                    DateTime dt = Constant.Flag.GetDateFromSeconds(resp.Expiry);
+                                    DateTime tradeTime = Constant.Flag.GetDateFromSeconds(resp.tradeTime);
+
+                                    string script = "";
+                                    string instrument = "";
+                                    string option = "";
+                                    string expr = "";
+                                    int strike = 0;
+                                    if (resp.token > 0)
+                                    {
+                                        var info = contract.GetTokenDetails(resp.token);
+                                        {
+                                            if (info != null)
+                                            {
+                                                script = info.script;
+                                                instrument = info.instrument.ToString();
+                                                option = info.option.ToString();
+                                                DateTime dts = Constant.Flag.GetDateFromSeconds                                  (info.exp);
+                                                expr = dt.ToString("dd MMM yyyy").ToUpper();
+                                                strike = info.strike;
+
+                                            }
+                                            else
+                                            {
+                                                logger.WriteLine("Token Detail Not Found in Contract file :" + resp.token);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        logger.WriteLine("Token : " + resp.token);
+                                    }
+
+                                    //string tradeLog = $"{resp.tradeId},{resp.userCode.Trim()},{resp.neatId},{resp.ordNo.ToString()},{resp.token},{resp.trdQnty},{(resp.trdPrice).ToString("0.00")},{tradeTime.ToString("yyyy-MM-dd HH:mm:ss")},{ dt.ToString("dd MMM yyyy").ToUpper()},{resp.pfId},{resp.stgType},{resp.pfBuySell},{resp.legNo},{resp.StgId},{resp.ratios.Trim()},{resp.tokens.Trim()}";
+
+                                    string tradeLog = $"{resp.tradeId},{resp.userCode.Trim()},{resp.neatId},{resp.ordNo.ToString()},{script},{instrument},{(strike / 100.0).ToString()},{option},{expr},{resp.trdQnty},{(resp.trdPrice).ToString("0.00")},{Constant.Flag.GetDateFromSeconds(resp.tradeTime).ToString("yyyy-MM-dd HH:mm:ss")},{resp.tradeId},{resp.token},{resp.StgId},{resp.pfId},{resp.stgType},{resp.pfBuySell},{resp.legNo},{resp.ratios.Trim()},{resp.tokens.Trim()}";
+
+
+                                    ModTradeCount++;
+                                    Program.Gui.tradeServer.ModeratorTradeWriter.WriteLine(tradeLog);
+                                    //if(ModTradeCount % 50 == 0)
                                     Program.Gui.UpdateTradeCount(ModTradeCount);
-                                
+
+                                }
                             }
                         }
                     }

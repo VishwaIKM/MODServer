@@ -36,13 +36,13 @@ namespace Moderator_Server
     class LoginRequest
     {
         public int userId;
-        public int password;
+        public int password = -1;
         public int version;
         public char[] pswd;
 
         public LoginRequest()
         {
-            pswd = new char[8];
+            //pswd = new char[8];
         }
 
         public byte[] GetBytes()
@@ -72,6 +72,33 @@ namespace Moderator_Server
                 this.version = BitConverter.ToInt32(data, offset + 4);
                 this.pswd = Encoding.UTF8.GetString(data, offset + 8, 8).ToCharArray();
             }
+        }
+    }
+    class NewLoginRequest
+    {
+        public int userId;
+        public int password;
+        public int userNo = 1;
+        //public char[] pswd;
+
+        public NewLoginRequest()
+        {
+            //pswd = new char[8];
+        }
+
+        public byte[] GetBytes()
+        {
+            byte[] data = new byte[24];
+
+            BitConverter.GetBytes((int)1001).CopyTo(data, 0);
+            BitConverter.GetBytes((short)24).CopyTo(data, 2);
+            BitConverter.GetBytes((int)0).CopyTo(data, 4);
+            BitConverter.GetBytes(userNo).CopyTo(data, 8);
+            Encoding.UTF8.GetBytes(password.ToString().PadRight(8)).CopyTo(data, 12);
+            BitConverter.GetBytes(userId).CopyTo(data, 20);
+
+
+            return data;
         }
     }
     class LoginResponse
@@ -125,7 +152,7 @@ namespace Moderator_Server
         public int StgId;
         public string ratios;
         public string tokens;
-        public long tradeTime;
+        public int tradeTime;
         public int Expiry;
 
         public HedgerTradeResponse()
@@ -140,16 +167,16 @@ namespace Moderator_Server
             token = BitConverter.ToInt32(data, 18);
             trdQnty = BitConverter.ToInt32(data, 22);
             trdPrice = BitConverter.ToSingle(data, 26);
-            tradeTime = BitConverter.ToInt64(data, 30);
-            tradeId = BitConverter.ToInt32(data, 38);
-            pfId = BitConverter.ToInt32(data, 42);
-            stgType = BitConverter.ToInt32(data, 46);
-            pfBuySell = BitConverter.ToInt32(data, 50);
-            legNo = BitConverter.ToInt32(data, 54);
-            StgId = BitConverter.ToInt32(data, 58);
-            Expiry = BitConverter.ToInt32(data, 62);
-            ratios = Encoding.ASCII.GetString(data, 66, 15);
-            tokens = Encoding.ASCII.GetString(data, 81, 25);
+            tradeTime = BitConverter.ToInt32(data, 30);
+            tradeId = BitConverter.ToInt32(data, 34);
+            pfId = BitConverter.ToInt32(data, 38);
+            stgType = BitConverter.ToInt32(data, 42);
+            pfBuySell = BitConverter.ToInt32(data, 46);
+            legNo = BitConverter.ToInt32(data, 50);
+            StgId = BitConverter.ToInt32(data, 54);
+            Expiry = BitConverter.ToInt32(data, 58);
+            ratios = Encoding.ASCII.GetString(data, 62, 15);
+            tokens = Encoding.ASCII.GetString(data, 77, 25);
         }
     }
     class TradeMatchResponse
@@ -158,37 +185,50 @@ namespace Moderator_Server
         public int Token;
         public int TradeQnty;
         public float TradePrice;
-        public Int64 Time;
+        public Int32 Time;
+        public int tradeId;
+        int length = 32;
+        int transcode = 101;
+
 
         public byte[] GetBytes()
         {
-            byte[] data = new byte[24];
+            byte[] data = new byte[32];
 
-            BitConverter.GetBytes(this.NeatId).CopyTo(data, 0);
-            BitConverter.GetBytes(this.Token).CopyTo(data, 4);
-            BitConverter.GetBytes(this.TradeQnty).CopyTo(data, 8);
-            BitConverter.GetBytes(this.TradePrice).CopyTo(data, 12);
-            BitConverter.GetBytes(this.Time).CopyTo(data, 16);
+            BitConverter.GetBytes(length).CopyTo(data, 0);
+            BitConverter.GetBytes(transcode).CopyTo(data, 4);
+            BitConverter.GetBytes(this.NeatId).CopyTo(data, 8);
+            BitConverter.GetBytes(this.Token).CopyTo(data, 12);
+            BitConverter.GetBytes(this.TradeQnty).CopyTo(data, 16);
+            BitConverter.GetBytes(this.TradePrice).CopyTo(data, 20);
+            BitConverter.GetBytes(this.Time).CopyTo(data, 24);
+            BitConverter.GetBytes(this.tradeId).CopyTo(data, 28);
             return data;
         }
     }
     class TradeManagerResponse
     {
-        public char[] ClientCode;
+        public int Length = 29;
+        public int TransCode = 202;
+        public string UserCode;
         public int Token;
         public int TradeQnty;
         public float TradePrice;
-        public Int64 Time;
+        public Int32 TradeTime;
+
 
         public byte[] GetBytes()
         {
-            byte[] data = new byte[26];
+            byte[] data = new byte[29];
 
-            Encoding.UTF8.GetBytes(ClientCode.ToString().PadRight(6)).CopyTo(data, 0);
-            BitConverter.GetBytes(this.Token).CopyTo(data, 6);
-            BitConverter.GetBytes(this.TradeQnty).CopyTo(data, 10);
-            BitConverter.GetBytes(this.TradePrice).CopyTo(data, 14);
-            BitConverter.GetBytes(this.Time).CopyTo(data, 18);
+            BitConverter.GetBytes(Length).CopyTo(data, 0);
+            BitConverter.GetBytes(TransCode).CopyTo(data, 4);
+            Encoding.UTF8.GetBytes(UserCode.ToString().PadRight(5)).CopyTo(data, 8);
+            BitConverter.GetBytes(this.Token).CopyTo(data, 13);
+            BitConverter.GetBytes(this.TradeQnty).CopyTo(data, 17);
+            BitConverter.GetBytes(this.TradePrice).CopyTo(data, 21);
+            BitConverter.GetBytes(this.TradeTime).CopyTo(data, 25);
+          
             return data;
         }
     }

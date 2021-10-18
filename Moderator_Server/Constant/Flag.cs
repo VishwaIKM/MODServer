@@ -8,10 +8,8 @@ namespace Moderator_Server.Constant
 {
     class Flag
     {
-        public const int DropCopyTrade = 1;
-        public const int ModeratorTrade = 2;
-        public const int InhouseTrade = 109;
-        public const int DropTrade = 2222;
+        
+        public const int InhouseTrade = 100;
         public const int RmsHedger = 501;
         public const int HedgerTrdResponse = 502;
 

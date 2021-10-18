@@ -63,7 +63,7 @@ namespace Moderator_Server.Backend
                         Pinger = new System.Threading.Thread(SendPing);
                         Pinger.Start();
                         
-                        TradeServer.logger.WriteLine(userId + "Logged In");
+                       // TradeServer.logger.WriteLine(userId + "Logged In");
                     }
 
                     return instance.Connected;
@@ -125,7 +125,8 @@ namespace Moderator_Server.Backend
         {
             if (instance != null && instance.Connected)
             {
-                LoginRequest request = new LoginRequest() { password = passWord, userId = userId, version = 1 };
+                //LoginRequest request = new LoginRequest() { password = passWord, userId = userId, version = 1 };
+                NewLoginRequest request = new NewLoginRequest() { password = passWord, userId = userId};
                 var data = request.GetBytes();
                 return this.Send(data, data.Length);
             }
@@ -204,45 +205,79 @@ namespace Moderator_Server.Backend
             ReceivingBuffer = new byte[8];
             while(this.Connected)
             {
-                int trans = 0;
-                int len = 0;
-                if (Receive(ref ReceivingBuffer, 8))
+                try
                 {
-                    short tcode = BitConverter.ToInt16(ReceivingBuffer, 0);
-                    trans = (int)tcode;
-                    short lens = BitConverter.ToInt16(ReceivingBuffer, 2);
-                    len = (int)lens;
-                    ReceivingBuffer = new byte[len - 8];
-                   
-                    switch (trans)
+                    int trans = 0;
+                    int len = 0;
+                    if (Receive(ref ReceivingBuffer, 8))
                     {
-                        case LoginResponse:
-                            {   
-                                if (Receive(ref ReceivingBuffer, 5))
+                        short tcode = BitConverter.ToInt16(ReceivingBuffer, 0);
+                        trans = (int)tcode;
+                        short lens = BitConverter.ToInt16(ReceivingBuffer, 2);
+                        len = (int)lens;
+                        int err = BitConverter.ToInt32(ReceivingBuffer, 4);
+                        
+                       // TradeServer.logger.WriteLine("Tcode :" + tcode + "Len :" + len + "Err :" + err);
+                      //  Debug.WriteLine(userId + "," + serverName + "," + "Tcode :" + tcode + "Len :" + len + "Err :" + err);
+                        
+                        ReceivingBuffer = new byte[len - 8];
+
+                        switch (trans)
+                        {
+                            case LoginResponse:
                                 {
-                                    string code = Encoding.ASCII.GetString(ReceivingBuffer, 0, 5);
+                                    if (Receive(ref ReceivingBuffer, 5))
+                                    {
+                                        string code = Encoding.ASCII.GetString(ReceivingBuffer, 0, 5);
+                                        if (err == 100)
+                                        {
+                                            TradeServer.logger.WriteLine(userId + "Invalid User Id, could not Login");
+
+                                        }
+                                        else if (err == 101)
+                                        {
+                                            TradeServer.logger.WriteLine(userId + "Invalid Password, could not Login");
+
+                                        }
+                                        else if (err == 102)
+                                        {
+                                            TradeServer.logger.WriteLine(userId + "Invalid TransCode, could Not Login");
+
+                                        }
+                                        else
+                                            TradeServer.logger.WriteLine(userId + "_" + serverName + "Logged In");
+                                    }
+                                    break;
                                 }
-                                break;
-                            }
-                        case Constant.Flag.InhouseTrade:
-                            {
-                                if (Receive(ref ReceivingBuffer, 106))
+                            case Constant.Flag.InhouseTrade:
                                 {
-                                    Program.Gui.tradeServer.AddTradeToModeratorQueue(ReceivingBuffer);
+                                    if (Receive(ref ReceivingBuffer, 102))
+                                    {
+                                        Program.Gui.tradeServer.AddTradeToModeratorQueue(ReceivingBuffer);
+                                    }
+                                    break;
                                 }
+                            default:
                                 break;
-                            }
-                        default:
-                            break;
+                        }
+                        ReceivingBuffer = new byte[8];
                     }
-                    ReceivingBuffer = new byte[8];
+                    else
+                    {
+                        //Error
+                        break;
+                    }
                 }
-                else
+                catch(Exception ex)
                 {
-                    //Error
+                    Debug.WriteLine("Error in ReceiveLoop "+ ex);
+                    Program.Gui.UpdateServerStatus();
+                    StopServer();
                     break;
                 }
+                
             }
+            Program.Gui.UpdateServerStatus();
         }
         
     }

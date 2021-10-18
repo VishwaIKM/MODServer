@@ -64,14 +64,14 @@
             // splitContainerMain.Panel2
             // 
             this.splitContainerMain.Panel2.Controls.Add(this.lvLogs);
-            this.splitContainerMain.Size = new System.Drawing.Size(900, 362);
-            this.splitContainerMain.SplitterDistance = 135;
+            this.splitContainerMain.Size = new System.Drawing.Size(753, 420);
+            this.splitContainerMain.SplitterDistance = 181;
             this.splitContainerMain.TabIndex = 0;
             // 
             // ModTrade
             // 
             this.ModTrade.AutoSize = true;
-            this.ModTrade.Location = new System.Drawing.Point(636, 96);
+            this.ModTrade.Location = new System.Drawing.Point(542, 93);
             this.ModTrade.Name = "ModTrade";
             this.ModTrade.Size = new System.Drawing.Size(13, 13);
             this.ModTrade.TabIndex = 8;
@@ -81,7 +81,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(626, 67);
+            this.label2.Location = new System.Drawing.Point(521, 64);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(111, 17);
             this.label2.TabIndex = 6;
@@ -90,9 +90,9 @@
             // lvServerDetail
             // 
             this.lvServerDetail.HideSelection = false;
-            this.lvServerDetail.Location = new System.Drawing.Point(187, 12);
+            this.lvServerDetail.Location = new System.Drawing.Point(113, 3);
             this.lvServerDetail.Name = "lvServerDetail";
-            this.lvServerDetail.Size = new System.Drawing.Size(415, 121);
+            this.lvServerDetail.Size = new System.Drawing.Size(389, 175);
             this.lvServerDetail.TabIndex = 4;
             this.lvServerDetail.UseCompatibleStateImageBehavior = false;
             this.lvServerDetail.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvServerDetail_MouseDoubleClick_1);
@@ -100,9 +100,9 @@
             // btnDisconnect
             // 
             this.btnDisconnect.Enabled = false;
-            this.btnDisconnect.Location = new System.Drawing.Point(769, 12);
+            this.btnDisconnect.Location = new System.Drawing.Point(643, 9);
             this.btnDisconnect.Name = "btnDisconnect";
-            this.btnDisconnect.Size = new System.Drawing.Size(119, 27);
+            this.btnDisconnect.Size = new System.Drawing.Size(105, 27);
             this.btnDisconnect.TabIndex = 3;
             this.btnDisconnect.Text = "Disconnect All";
             this.btnDisconnect.UseVisualStyleBackColor = true;
@@ -111,9 +111,10 @@
             // groupBoxModeratorInfo
             // 
             this.groupBoxModeratorInfo.Controls.Add(this.lblModeratorCredentials);
-            this.groupBoxModeratorInfo.Location = new System.Drawing.Point(6, 12);
+            this.groupBoxModeratorInfo.Dock = System.Windows.Forms.DockStyle.Left;
+            this.groupBoxModeratorInfo.Location = new System.Drawing.Point(0, 0);
             this.groupBoxModeratorInfo.Name = "groupBoxModeratorInfo";
-            this.groupBoxModeratorInfo.Size = new System.Drawing.Size(175, 121);
+            this.groupBoxModeratorInfo.Size = new System.Drawing.Size(107, 181);
             this.groupBoxModeratorInfo.TabIndex = 2;
             this.groupBoxModeratorInfo.TabStop = false;
             this.groupBoxModeratorInfo.Text = "ModeratorServer Details";
@@ -129,9 +130,9 @@
             // 
             // btnConnect
             // 
-            this.btnConnect.Location = new System.Drawing.Point(618, 12);
+            this.btnConnect.Location = new System.Drawing.Point(524, 9);
             this.btnConnect.Name = "btnConnect";
-            this.btnConnect.Size = new System.Drawing.Size(119, 27);
+            this.btnConnect.Size = new System.Drawing.Size(98, 27);
             this.btnConnect.TabIndex = 0;
             this.btnConnect.Text = "Connect All";
             this.btnConnect.UseVisualStyleBackColor = true;
@@ -140,10 +141,11 @@
             // lvLogs
             // 
             this.lvLogs.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.lvLogs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvLogs.HideSelection = false;
-            this.lvLogs.Location = new System.Drawing.Point(6, 3);
+            this.lvLogs.Location = new System.Drawing.Point(0, 0);
             this.lvLogs.Name = "lvLogs";
-            this.lvLogs.Size = new System.Drawing.Size(891, 212);
+            this.lvLogs.Size = new System.Drawing.Size(753, 235);
             this.lvLogs.TabIndex = 0;
             this.lvLogs.UseCompatibleStateImageBehavior = false;
             // 
@@ -151,8 +153,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(900, 362);
+            this.ClientSize = new System.Drawing.Size(753, 420);
             this.Controls.Add(this.splitContainerMain);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
             this.Text = "Moderator";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);

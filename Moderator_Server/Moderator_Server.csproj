@@ -50,8 +50,10 @@
     <Compile Include="ClientManager\Manager.cs" />
     <Compile Include="ClientManager\PacketStructure.cs" />
     <Compile Include="ClientManager\SocketObject.cs" />
+    <Compile Include="Constant\Enum.cs" />
     <Compile Include="Constant\Flag.cs" />
     <Compile Include="Constant\Path.cs" />
+    <Compile Include="Contract.cs" />
     <Compile Include="Ini.cs" />
     <Compile Include="LoggingModule.cs" />
     <Compile Include="MainForm.cs">
