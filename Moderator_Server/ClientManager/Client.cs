@@ -219,7 +219,7 @@ namespace Moderator_Server.ClientManager
             }
             else
             {
-                TradeServer.logger.WriteLine("Cllient Disconnected , Coul Not Send Trades:" +ClientName);
+                TradeServer.logger.WriteLine("Client Disconnected , Coul Not Send Trades:" +ClientName);
                 return false;
             }
         }
