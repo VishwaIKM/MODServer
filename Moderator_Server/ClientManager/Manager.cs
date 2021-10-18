@@ -320,7 +320,7 @@ namespace Moderator_Server.ClientManager
                 }
             }
         }
-        public void SendTradesToClient1(string clientName, byte[] data,int uerid)
+        public void SendTradesToClient1_previous(string clientName, byte[] data,int uerid)
         {
             lock (locker)
             {
@@ -352,7 +352,7 @@ namespace Moderator_Server.ClientManager
                 }
             }
         }
-        public void SendTradesToRmsHedger1(string clientName, int neat, int stgCode, byte[] data,int userid)
+        public void SendTradesToRmsHedger1_previous(string clientName, int neat, int stgCode, byte[] data,int userid)
         {
             lock (lockerHedge)
             {
@@ -397,7 +397,7 @@ namespace Moderator_Server.ClientManager
                     BitConverter.GetBytes(8).CopyTo(data, 0);
                     BitConverter.GetBytes(701).CopyTo(data, 4);
 
-                    SendTradesToClient1(clientname, data,userid);
+                    SendTradesToClient1_previous(clientname, data,userid);
                 }
 
                 using (StreamReader sr = new StreamReader(tmpPath))
@@ -449,7 +449,7 @@ namespace Moderator_Server.ClientManager
                             trd.ratios = arr[19];
 
                             var dataa = trd.GetBytes();
-                            SendTradesToRmsHedger1(Constant.Flag.Hedger, trd.neatId, trd.stgType, dataa,userid);
+                            SendTradesToRmsHedger1_previous(Constant.Flag.Hedger, trd.neatId, trd.stgType, dataa,userid);
 
                         }
                         else if(clientname == Constant.Flag.TradeMatch)
@@ -469,8 +469,8 @@ namespace Moderator_Server.ClientManager
                             matchResp.tradeId = tradeId;
                             matchResp.TradeQnty = trdqnty;
                             matchResp.TradePrice = price;
-                            
-                            SendTradesToClient1(Constant.Flag.TradeMatch, matchResp.GetBytes(),userid);
+
+                            SendTradesToClient1_previous(Constant.Flag.TradeMatch, matchResp.GetBytes(),userid);
 
                         }
                         else if(clientname == Constant.Flag.TradeManager)
@@ -485,7 +485,7 @@ namespace Moderator_Server.ClientManager
                             TradeManagerResponse mngr = new TradeManagerResponse
                             { TradeTime = tradesec, UserCode = userCode, Token = token, TradePrice = price, TradeQnty = trdqnty };
 
-                            SendTradesToClient1(Constant.Flag.TradeManager, mngr.GetBytes(),userid);
+                            SendTradesToClient1_previous(Constant.Flag.TradeManager, mngr.GetBytes(),userid);
 
                         }
                     }
@@ -498,7 +498,7 @@ namespace Moderator_Server.ClientManager
                     BitConverter.GetBytes(8).CopyTo(data, 0);
                     BitConverter.GetBytes(702).CopyTo(data, 4);
 
-                    SendTradesToClient1(clientname, data,userid);
+                    SendTradesToClient1_previous(clientname, data,userid);
                 }
             }
             catch (Exception ex)
