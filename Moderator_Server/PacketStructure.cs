@@ -208,18 +208,19 @@ namespace Moderator_Server
     }
     class TradeManagerResponse
     {
-        public int Length = 29;
+        public int Length = 33;
         public int TransCode = 202;
         public string UserCode;
         public int Token;
         public int TradeQnty;
         public float TradePrice;
         public Int32 TradeTime;
+        public int Tradeid;
 
 
         public byte[] GetBytes()
         {
-            byte[] data = new byte[29];
+            byte[] data = new byte[33];
 
             BitConverter.GetBytes(Length).CopyTo(data, 0);
             BitConverter.GetBytes(TransCode).CopyTo(data, 4);
@@ -228,6 +229,7 @@ namespace Moderator_Server
             BitConverter.GetBytes(this.TradeQnty).CopyTo(data, 17);
             BitConverter.GetBytes(this.TradePrice).CopyTo(data, 21);
             BitConverter.GetBytes(this.TradeTime).CopyTo(data, 25);
+            BitConverter.GetBytes(this.Tradeid).CopyTo(data, 29);
           
             return data;
         }

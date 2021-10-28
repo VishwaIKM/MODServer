@@ -483,7 +483,7 @@ namespace Moderator_Server.ClientManager
                             int tradesec = (int)tradediff.TotalSeconds;
 
                             TradeManagerResponse mngr = new TradeManagerResponse
-                            { TradeTime = tradesec, UserCode = userCode, Token = token, TradePrice = price, TradeQnty = trdqnty };
+                            { TradeTime = tradesec, UserCode = userCode, Token = token, TradePrice = price, TradeQnty = trdqnty,Tradeid=tradeId};
 
                             SendTradesToClient1_previous(Constant.Flag.TradeManager, mngr.GetBytes(),userid);
 

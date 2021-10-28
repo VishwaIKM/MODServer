@@ -174,7 +174,7 @@ namespace Moderator_Server
                                     clntManager.SendTradesToClient(Constant.Flag.TradeMatch, matchResp.GetBytes());
 
                                     TradeManagerResponse mngr = new TradeManagerResponse
-                                    { TradeTime = resp.tradeTime, UserCode = resp.userCode, Token = resp.token, TradePrice = resp.trdPrice, TradeQnty = resp.trdQnty };
+                                    { TradeTime = resp.tradeTime, UserCode = resp.userCode, Token = resp.token, TradePrice = resp.trdPrice, TradeQnty = resp.trdQnty,Tradeid=resp.tradeId};
 
                                     clntManager.SendTradesToClient(Constant.Flag.TradeManager, mngr.GetBytes());
 
@@ -195,7 +195,7 @@ namespace Moderator_Server
                                                 script = info.script;
                                                 instrument = info.instrument.ToString();
                                                 option = info.option.ToString();
-                                                DateTime dts = Constant.Flag.GetDateFromSeconds                                  (info.exp);
+                                                DateTime dts = Constant.Flag.GetDateFromSeconds(info.exp);
                                                 expr = dt.ToString("dd MMM yyyy").ToUpper();
                                                 strike = info.strike;
 

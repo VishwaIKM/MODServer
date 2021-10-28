@@ -6,6 +6,7 @@ using System.Threading;
 using System.Net.Sockets;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Net;
 
 namespace Moderator_Server.Backend
 {
@@ -54,6 +55,7 @@ namespace Moderator_Server.Backend
                 {
                     instance = new TcpClient();
                     instance.Connect(this.ipAddress, this.port);
+                  //  instance.Connect("198.168.1.152", 1998);
 
                     if (instance.Connected)
                     {
