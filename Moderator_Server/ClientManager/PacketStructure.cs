@@ -26,6 +26,7 @@ namespace Moderator_Server.ClientManager
         public int tradeQnty;
         public float tradePrice;
         public int tradeTime;
+        public int tradeid;
 
         public void GetData(byte[] data)
         {
@@ -37,6 +38,7 @@ namespace Moderator_Server.ClientManager
                 tradeQnty = BitConverter.ToInt32(data, 14);
                 tradePrice = BitConverter.ToSingle(data, 18);
                 tradeTime = BitConverter.ToInt32(data, 22);
+                tradeid = BitConverter.ToInt32(data, 26);
             }
             catch
             {

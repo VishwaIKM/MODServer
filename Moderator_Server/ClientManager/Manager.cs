@@ -19,7 +19,7 @@ namespace Moderator_Server.ClientManager
         private readonly object locker = new object();
         private readonly object lockerHedge = new object();
         private static readonly object clientLock = new object();
-        private Dictionary<int, Client> ClientDataBase = new Dictionary<int, Client>();
+        public  Dictionary<int, Client> ClientDataBase = new Dictionary<int, Client>();
         public Manager()
         {
             //clnt = new Client();
@@ -54,6 +54,7 @@ namespace Moderator_Server.ClientManager
                             }
                         }
                         TradeServer.logger.WriteLine("Client Details Loaded");
+                        Program.Gui.UpdatestatusServercon();
                     }
                     clientSessionChecker = new System.Threading.Thread(CheckConnection);
                     clientSessionChecker.Start();
@@ -283,6 +284,7 @@ namespace Moderator_Server.ClientManager
                 #endregion
 
                 client.InitiateReceiveLoop();
+                Program.Gui.UpdatestatusServercon();
 
                 DisposePrevious();
                 SendPrevious = new Thread(() => SendPreviousTrades(client.ClientName,detail.userId));
@@ -295,6 +297,12 @@ namespace Moderator_Server.ClientManager
             {
                 TradeServer.logger.WriteLine("ClientId :" + detail.userId + "Did not Match with DataBase");
             }
+        }
+
+        public bool Checkconnection(int id)
+        {
+            return ClientDataBase[id].IsConnected();
+            
         }
         public void StopClient()
         {

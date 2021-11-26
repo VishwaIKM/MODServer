@@ -67,7 +67,7 @@ namespace Moderator_Server.ClientManager
             }
             catch
             {
-
+                Program.Gui.UpdatestatusServercon();
             }
 
             if (bytesend == length)
@@ -113,10 +113,10 @@ namespace Moderator_Server.ClientManager
                            // int secn = (int)diffn.TotalSeconds;
 
 
-                            TradeMatchResponse match = new TradeMatchResponse { NeatId = resp.neatId, Time = resp.tradeTime, Token = resp.token, TradePrice = resp.tradePrice, TradeQnty = resp.tradeQnty };
+                            TradeMatchResponse match = new TradeMatchResponse { NeatId = resp.neatId, Time = resp.tradeTime, Token = resp.token, TradePrice = resp.tradePrice, TradeQnty = resp.tradeQnty,tradeId=resp.tradeid };
                             Program.Gui.tradeServer.clntManager.SendTradesToClient(Constant.Flag.TradeMatch, match.GetBytes());
 
-                            TradeManagerResponse mngr = new TradeManagerResponse { UserCode = resp.userCode, TradeTime = resp.tradeTime, Token = resp.token, TradePrice = resp.tradePrice, TradeQnty = resp.tradeQnty };
+                            TradeManagerResponse mngr = new TradeManagerResponse { UserCode = resp.userCode, TradeTime = resp.tradeTime, Token = resp.token, TradePrice = resp.tradePrice, TradeQnty = resp.tradeQnty,Tradeid=resp.tradeid};
                             Program.Gui.tradeServer.clntManager.SendTradesToClient(Constant.Flag.TradeManager, mngr.GetBytes());
 
                             break;
@@ -219,13 +219,14 @@ namespace Moderator_Server.ClientManager
             }
             else
             {
-                TradeServer.logger.WriteLine("Client Disconnected , Coul Not Send Trades:" +ClientName);
+                //TradeServer.logger.WriteLine("Client Disconnected , Coul Not Send Trades:" +ClientName);
                 return false;
             }
         }
 
         private void OnClientDisconnected(string reason = "NRML")
         {
+            Program.Gui.UpdatestatusServercon();
             TradeServer.logger.WriteLine(ClientID + " " + ClientName + $"  Disconnected. Reason:{reason} ");
         }
       

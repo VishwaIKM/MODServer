@@ -31,7 +31,7 @@ namespace Moderator_Server
                 }
                 else
                 {
-                    wfl_RiskTrades = new FileStream(OutputFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+                    wfl_RiskTrades = new FileStream(OutputFilePath, FileMode.Open, FileAccess.Write, FileShare.Read);
                     sw_trades = new StreamWriter(wfl_RiskTrades);
                 }
                 return true;
