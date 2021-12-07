@@ -188,7 +188,8 @@ namespace Moderator_Server.Backend
             }
             catch
             {
-
+                Program.Gui.updateServerStatus();
+                TradeServer.logger.WriteLine(userId + " " + serverName+ "Logged Out");
             }
 
             if (bytesend == length)
@@ -198,6 +199,7 @@ namespace Moderator_Server.Backend
                 if (instance != null)
                 {
                     instance.Close();
+                   // TradeServer.logger.WriteLine(userId + " " +serverName + $"  Socket has closed because recieved length is not equal to expected ");
                 }
                 return false;
             }
@@ -273,13 +275,13 @@ namespace Moderator_Server.Backend
                 catch(Exception ex)
                 {
                     Debug.WriteLine("Error in ReceiveLoop "+ ex);
-                    Program.Gui.UpdateServerStatus();
+                    Program.Gui.updateServerStatus();
                     StopServer();
                     break;
                 }
                 
             }
-            Program.Gui.UpdateServerStatus();
+            Program.Gui.updateServerStatus();
         }
         
     }

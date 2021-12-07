@@ -23,19 +23,25 @@ namespace Moderator_Server
             lvLogs.Columns.Add("Type", 80);
             lvLogs.Columns.Add("Message", 500);
 
+            lvclientdetails.View = View.Details;
+            lvclientdetails.Columns.Add("UserID", 100);
+            lvclientdetails.Columns.Add("Client", 200);
+            lvclientdetails.Columns.Add("Status", 200);
+
             lvServerDetail.View = View.Details;
 
-            lvServerDetail.Columns.Add("Moderator", 100);
+            lvServerDetail.Columns.Add("Server", 100);
             lvServerDetail.Columns.Add("UserId", 60);
-            lvServerDetail.Columns.Add("Ip:Port", 140);
+            lvServerDetail.Columns.Add("Ip:Port", 100);
             //lvServerDetail.Columns.Add("NeatId");
             //lvServerDetail.Columns.Add("ServerId");
-            lvServerDetail.Columns.Add("Status");
+            lvServerDetail.Columns.Add("Status",100);
             lvServerDetail.FullRowSelect = true;
             lvServerDetail.MultiSelect = false;
+           // lvServerDetail.GridLines.
 
             //groupBoxModeratorInfo.BackColor = Color.LightCyan;
-            lvServerDetail.BackColor = Color.LightPink;
+            lvServerDetail.BackColor = Color.LightGray;
         }
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -56,7 +62,7 @@ namespace Moderator_Server
             {
                 if (File.Exists(path))
                 {
-                    FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     StreamReader sr = new StreamReader(fs);
 
                     while (sr.Peek() > 0)
@@ -72,17 +78,20 @@ namespace Moderator_Server
                             string[] ln = arr[2].Split(':');
                             string ip = ln[0];
                             int port = Convert.ToInt32(ln[1]);
-                            ListViewItem itm = new ListViewItem(mod);
-                            itm.SubItems.Add(userId.ToString());
-                            itm.SubItems.Add(ipPort);
-                            itm.SubItems.Add("False");
-                            lvServerDetail.Items.Add(itm);
-                            ServerGuiInstance.Add(userId, itm);
+                            if (!ServerGuiInstance.ContainsKey(userId))
+                            {
+                                ListViewItem itm = new ListViewItem(mod);
+                                itm.SubItems.Add(userId.ToString());
+                                itm.SubItems.Add(ipPort);
+                                itm.SubItems.Add("DISCONNETED");
+                                lvServerDetail.Items.Add(itm);
+                                ServerGuiInstance.Add(userId, itm);
+                            }
                         }
                     }
-                    UpdateServerStatus();
-                    fs.Close();
+                    updateServerStatus();
                     sr.Close();
+                    fs.Close();
                 }
                 else
                 {
@@ -99,6 +108,7 @@ namespace Moderator_Server
             if (MessageBox.Show("Do you really wan't to close TradeServer??", "Alert", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
                 tradeServer.CloseAll();
+              
             }
             else
             {
@@ -129,7 +139,7 @@ namespace Moderator_Server
                 btnConnect.Enabled = true;
                 btnDisconnect.Enabled = false;
             }
-            UpdateServerStatus();
+            updateServerStatus();
         }
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
@@ -142,7 +152,7 @@ namespace Moderator_Server
                 btnConnect.Enabled = true;
                 btnDisconnect.Enabled = false;
 
-                UpdateServerStatus();
+                updateServerStatus();
             }
         }
 
@@ -201,24 +211,29 @@ namespace Moderator_Server
                     if (DialogResult.OK == MessageBox.Show("Do you really want to disconnect Server " + serverId, "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2))
                     {
                         tradeServer.serverController.DisconnectServer(serverId);
-                        listViewHitTestInfo.Item.SubItems[3].Text = false.ToString();
+                        listViewHitTestInfo.Item.ForeColor = Color.Red;
+                        listViewHitTestInfo.Item.SubItems[3].Text = "DISCONNECTED";
                     }
                 }
                 else
                 {
-                    listViewHitTestInfo.Item.ForeColor = Color.Green;
-                    listViewHitTestInfo.Item.SubItems[3].Text = tradeServer.serverController.ConnectToBackend(serverId).ToString();
+                    if (tradeServer.serverController.ConnectToBackend(serverId))
+                    {
+                        listViewHitTestInfo.Item.ForeColor = Color.Green;
+                        listViewHitTestInfo.Item.SubItems[3].Text = "CONNECTED";
+                    }
+                    
                 }
-                UpdatestatusRcvconn();
+                //updateDashboard();
             }
         }
-        public void UpdateServerStatus()
+        public void updateServerStatus()
         {
             try
             {
                 if (this.InvokeRequired && !this.IsDisposed)
                 {
-                    Action action = new Action(UpdateServerStatus);
+                    Action action = new Action(updateServerStatus);
                     this.Invoke(action);
                 }
                 else
@@ -227,17 +242,17 @@ namespace Moderator_Server
                     {
                         if (tradeServer.serverController.Connected(i))
                         {
-                            ServerGuiInstance[i].ForeColor = Color.DarkGreen;
-                            ServerGuiInstance[i].SubItems[3].Text = tradeServer.serverController.Connected(i).ToString();
+                            ServerGuiInstance[i].ForeColor = Color.Green;
+                            ServerGuiInstance[i].SubItems[3].Text = "CONNECTED";
                         }
                         else
                         {
                             ServerGuiInstance[i].ForeColor = Color.Red;
-                            ServerGuiInstance[i].SubItems[3].Text = tradeServer.serverController.Connected(i).ToString();
+                            ServerGuiInstance[i].SubItems[3].Text = "DISCONNECTED";
                            
                         }
                     }
-                    UpdatestatusRcvconn();
+                   // updateDashboard();
                 }
             }
             catch { }
@@ -250,6 +265,33 @@ namespace Moderator_Server
 
         }
         delegate void updatest();
+
+        public void loadclientdetails()
+        {
+            if (this.InvokeRequired)
+            {
+                updatest up = new updatest(loadclientdetails);
+                this.Invoke(up);
+            }
+            else
+            {
+                try
+                {
+                    foreach (int id in tradeServer.clntManager.ClientDataBase.Keys)
+                    {
+                        ListViewItem itm = new ListViewItem(id.ToString().Trim());
+                        itm.Name = id.ToString().Trim();
+                        itm.SubItems.Add(tradeServer.clntManager.ClientDataBase[id].ClientName);
+                        itm.SubItems.Add("DISCONNECTED");
+                        itm.ForeColor = Color.Red;
+                        lvclientdetails.Items.Add(itm);
+                    }
+                }
+                catch { };
+            }
+
+
+        }
         public void UpdatestatusServercon()
         {
             if (this.InvokeRequired)
@@ -261,28 +303,28 @@ namespace Moderator_Server
             {
                 try
                 {
-                   // if (WindowState == FormWindowState.Maximized)
-                    {
-                        groupBox2.Controls.Clear();
-                        RichTextBox richtext = new RichTextBox();
-                        richtext.Dock = DockStyle.Fill;
-
+                  
                         int count = tradeServer.clntManager.ClientDataBase.Count;
-                        foreach (int id in tradeServer.clntManager.ClientDataBase.Keys)
+                    foreach (int id in tradeServer.clntManager.ClientDataBase.Keys)
+                    {
+                        if (lvclientdetails.Items.ContainsKey(id.ToString().Trim()))
                         {
+
                             string servername = tradeServer.clntManager.ClientDataBase[id].ClientName + '(' + id + ')';
                             if (tradeServer.clntManager.Checkconnection(id))
                             {
-                                Addtext(richtext,servername.PadRight(20) + "\nCONNECTED\n", Color.Green, true);
+                                lvclientdetails.Items[id.ToString()].SubItems[2].Text = "CONNECTED";
+                                lvclientdetails.Items[id.ToString()].ForeColor = Color.Green;
+
                             }
                             else
                             {
-                                Addtext(richtext,servername.PadRight(20) + "\nDISCONNECTED\n", Color.Red, true);
-
+                                lvclientdetails.Items[id.ToString()].SubItems[2].Text = "DISCONNECTED";
+                                lvclientdetails.Items[id.ToString()].ForeColor = Color.Red;
                             }
                         }
-                        groupBox2.Controls.Add(richtext);
                     }
+                     
                 }
                 catch
                 {
@@ -292,11 +334,11 @@ namespace Moderator_Server
         }
 
         delegate void updatercv();
-        public void UpdatestatusRcvconn()
+        /*public void updateDashboard()
         {
             if (this.InvokeRequired)
             {
-                updatercv up = new updatercv(UpdatestatusRcvconn);
+                updatercv up = new updatercv(updateDashboard);
                 this.Invoke(up);
             }
             else
@@ -305,7 +347,7 @@ namespace Moderator_Server
                 {
                     // if (WindowState == FormWindowState.Maximized)
                     {
-                        groupBox3.Controls.Clear();
+                        //groupBox3.Controls.Clear();
                         RichTextBox richtext = new RichTextBox();
                         richtext.Dock = DockStyle.Fill;
 
@@ -314,15 +356,15 @@ namespace Moderator_Server
                                 string servername = ServerGuiInstance[i].SubItems[0].Text;
                             if (tradeServer.serverController.Connected(i))
                             {
-                                Addtext(richtext, servername.PadRight(20) + "\nCONNECTED\n", Color.Green, true);
+                                Addtext(richtext, servername.PadRight(20) + ":\tCONNECTED\n", Color.Green, true);
                             }
                             else
                             {
-                                Addtext(richtext, servername.PadRight(20) + "\nDISCONNECTED\n", Color.Red, true);
+                                Addtext(richtext, servername.PadRight(20) + ":\tDISCONNECTED\n", Color.Red, true);
 
                             }
                         }
-                        groupBox3.Controls.Add(richtext);
+                        //groupBox3.Controls.Add(richtext);
                     }
                 }
                 catch
@@ -331,7 +373,7 @@ namespace Moderator_Server
                 }
             }
         }
-
+        */
 
         public static void Addtext(RichTextBox box, string text, Color color, bool Addnewline)
         {
@@ -342,7 +384,7 @@ namespace Moderator_Server
                     text += Environment.NewLine;
                 }
                 box.SelectionStart = box.TextLength;
-                box.SelectionLength = 0;
+                box.SelectionLength = 0;              
                 box.SelectionColor = color;
                 box.SelectionFont = new Font("Microsoft Sans Serif", 10, FontStyle.Regular);
                 box.AppendText(text);
@@ -370,6 +412,16 @@ namespace Moderator_Server
                 //}
             }
             catch { }
+        }
+
+        private void Reload_btn_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Do you really want to update Moderator Details", "Reload", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                string path = Constant.path.startUpPath + "\\ModeratorDetail.txt";
+                tradeServer.serverController.LoadServerDetails(path);
+                AddServerToGui(path);
+            }
         }
     }
 }

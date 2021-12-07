@@ -22,7 +22,7 @@ namespace Moderator_Server.Backend
             {
                 if (File.Exists(path))
                 {
-                    FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     StreamReader sr = new StreamReader(fs);
 
                     while (sr.Peek() > 0)
@@ -38,13 +38,17 @@ namespace Moderator_Server.Backend
                             string[] ln = arr[2].Split(':');
                             string ip = ln[0];
                             int port = Convert.ToInt32(ln[1]);
-                            
-                            Server srvr = new Server() { ipAddress = ip, port = port, userId = userId, serverName = mod, passWord = passWord };
-
-                            this.Servers.Add(userId, srvr);
+                            if (!Servers.ContainsKey(userId))
+                            {
+                                Server srvr = new Server() { ipAddress = ip, port = port, userId = userId, serverName = mod, passWord = passWord };
+                                this.Servers.Add(userId, srvr);
+                            }
                         }
                     }
                     TradeServer.logger.WriteLine("Moderator Detils Loaded");
+                    sr.Close();
+                    fs.Close();
+
                 }
                 else
                 {

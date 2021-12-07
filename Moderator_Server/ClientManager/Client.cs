@@ -65,9 +65,11 @@ namespace Moderator_Server.ClientManager
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
                 Program.Gui.UpdatestatusServercon();
+                //OnClientDisconnected();
+               // TradeServer.logger.WriteLine(ClientID + " " + ClientName + $"  Disconnected. Reason:{ex.Message} ");
             }
 
             if (bytesend == length)
@@ -234,15 +236,19 @@ namespace Moderator_Server.ClientManager
         {
             try
             {
-                if(instance != null)
+                if(instance != null && instance.Client!=null)
                 {
                     //if (instance.Client != null && instance.Connected)
                     {
 
-                       // this.instance.Client.Shutdown(SocketShutdown.Both);
+                        this.instance.Client.Shutdown(SocketShutdown.Both);
                         instance = null;
                         OnClientDisconnected(reason);
                     }
+                }
+                if(instance!=null)
+                {
+                    instance = null;
                 }
                 
                 if (clientThread != null && clientThread.IsAlive)

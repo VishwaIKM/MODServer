@@ -54,7 +54,7 @@ namespace Moderator_Server.ClientManager
                             }
                         }
                         TradeServer.logger.WriteLine("Client Details Loaded");
-                        Program.Gui.UpdatestatusServercon();
+                        Program.Gui.loadclientdetails();
                     }
                     clientSessionChecker = new System.Threading.Thread(CheckConnection);
                     clientSessionChecker.Start();
