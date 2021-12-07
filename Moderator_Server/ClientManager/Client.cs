@@ -86,6 +86,8 @@ namespace Moderator_Server.ClientManager
         void ReceivingLoop()
         {
             ReceivingBuffer = new byte[8];
+            NeatIdList.Clear();
+            StrategyIdList.Clear();
             while (instance.Connected)
             {
                 if (Receive(ref ReceivingBuffer, 8))
