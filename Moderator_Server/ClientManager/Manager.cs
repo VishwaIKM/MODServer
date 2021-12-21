@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Globalization;
 
 namespace Moderator_Server.ClientManager
 {
@@ -421,8 +422,9 @@ namespace Moderator_Server.ClientManager
                         int trdqnty = Convert.ToInt32(arr[9]);
                         float price = Convert.ToSingle(arr[10]);
                         int token = Convert.ToInt32(arr[13]);
-                        DateTime tradeTim = Convert.ToDateTime(arr[11]);
-                        
+                        DateTime tradeTim = new DateTime();
+                        CultureInfo provider = CultureInfo.InvariantCulture;
+                        tradeTim = DateTime.ParseExact(arr[11], "M-dd-yyyy hh:mm:ss tt",provider);
                         if (clientname == Constant.Flag.Hedger)
                         {
                             HedgerPreviousTrades trd = new HedgerPreviousTrades();
