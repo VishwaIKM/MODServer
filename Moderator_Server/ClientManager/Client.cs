@@ -158,14 +158,14 @@ namespace Moderator_Server.ClientManager
                     }
                     else
                     {
-                        for (int id = 0; id < arr.Length; id++)
-                        {
-                            if (!StrategyIdList.Contains(Convert.ToInt32(arr[id])))
-                            {
-                                StrategyIdList.Add(Convert.ToInt32(arr[id]));
-                            }
-                        }
-                        TradeServer.logger.WriteLine("strategy Id Received from Hedger");
+                        //for (int id = 0; id < arr.Length; id++)
+                        //{
+                        //    if (!StrategyIdList.Contains(Convert.ToInt32(arr[id])))
+                        //    {
+                        //        StrategyIdList.Add(Convert.ToInt32(arr[id]));
+                        //    }
+                        //}
+                        //TradeServer.logger.WriteLine("strategy Id Received from Hedger");
                     }
                 }
                 else // for single NeatId or single Strategy Code
@@ -180,10 +180,10 @@ namespace Moderator_Server.ClientManager
                     }
                     else
                     {
-                        if (!StrategyIdList.Contains(Convert.ToInt32(data)))
-                        {
-                            StrategyIdList.Add(Convert.ToInt32(data));
-                        }
+                        //if (!StrategyIdList.Contains(Convert.ToInt32(data)))
+                        //{
+                        //    StrategyIdList.Add(Convert.ToInt32(data));
+                        //}
                         TradeServer.logger.WriteLine("strategy Id Received from Hedger");
                     }
                 }

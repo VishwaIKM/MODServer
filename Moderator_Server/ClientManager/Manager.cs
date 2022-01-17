@@ -355,7 +355,8 @@ namespace Moderator_Server.ClientManager
                     if (ClientDataBase[clId].ClientName.Contains(clientName))
                     {
                         var detail = ClientDataBase[clId];
-                        if (detail.NeatIdList.Contains(neat) && detail.StrategyIdList.Contains(stgCode))
+                       
+                        if (detail.NeatIdList.Contains(neat))
                             ClientDataBase[clId].Reply(data, data.Length);
                     }
                 }
@@ -372,7 +373,8 @@ namespace Moderator_Server.ClientManager
                         if (ClientDataBase[clId].ClientName.Contains(clientName))
                         {
                             var detail = ClientDataBase[clId];
-                            if (detail.NeatIdList.Contains(neat) && detail.StrategyIdList.Contains(stgCode))
+                            
+                            if (detail.NeatIdList.Contains(neat))
                                 ClientDataBase[clId].Reply(data, data.Length);
                         }
                     }
@@ -398,7 +400,7 @@ namespace Moderator_Server.ClientManager
             {
                 string tmpPath = Application.StartupPath + "\\" + clientname+"_"+userid + "tmp.txt";
                 File.Copy(Program.Gui.tradeServer.ModeratorTradeFile, tmpPath, true);
-
+                Thread.Sleep(1000);
                 if (clientname == Constant.Flag.TradeMatch || clientname == Constant.Flag.Hedger)
                 {
                     byte[] data = new byte[8];
