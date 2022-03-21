@@ -22,7 +22,7 @@ namespace Moderator_Server
             TraceListener listener = new DelimitedListTraceListener($"debugfile_{DateTime.Now.ToString("ddMMMyyyy")}.txt");
             Debug.Listeners.Add(listener);
             Debug.WriteLine("***********************DEBUG*************************");
-
+            Debug.AutoFlush = true;
 
             try
             {

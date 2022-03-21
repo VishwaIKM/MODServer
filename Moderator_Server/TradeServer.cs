@@ -29,7 +29,7 @@ namespace Moderator_Server
         public string ContractPath { get; set; }
         
         public TradeWriter ModeratorTradeWriter;
-
+        public static int Version;
         public Backend.ServerController serverController;
         public ClientManager.Manager clntManager;
 
@@ -101,7 +101,7 @@ namespace Moderator_Server
                 Port = ini.Read_int("TRADESERVER", "PORT");
                 OutPath = ini.Read("TRADESERVER", "OUTPATH");
                 ContractPath = ini.Read("TRADESERVER", "CONTRACT");
-
+               
                 if (!Directory.Exists(OutPath))
                     TradeServer.logger.WriteError("OutPath does not exists");
                 logger.WriteLine("Moderator Server details Loaded");

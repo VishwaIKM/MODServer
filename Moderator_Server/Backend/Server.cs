@@ -22,7 +22,7 @@ namespace Moderator_Server.Backend
         
         public TcpClient instance;
         public string ipAddress, serverName;
-        public int port, userId, passWord;
+        public int port, userId, passWord,clientVersion;
         public const int LoginResponse = 1001;
         
         public void StopServer()
@@ -32,6 +32,7 @@ namespace Moderator_Server.Backend
                 instance.Client.Close();
                 instance = null;
                 _IsConnected = false;
+                Program.Gui.updateServerStatus();
                 TradeServer.logger.WriteLine(userId + "Logged Out");
             }
 
@@ -127,8 +128,8 @@ namespace Moderator_Server.Backend
         {
             if (instance != null && instance.Connected)
             {
-                //LoginRequest request = new LoginRequest() { password = passWord, userId = userId, version = 1 };
-                NewLoginRequest request = new NewLoginRequest() { password = passWord, userId = userId};
+               // LoginRequest request = new LoginRequest() { password = passWord, userId = userId, version = TradeServer.Version };
+                NewLoginRequest request = new NewLoginRequest() { password = passWord, userId = userId,version=clientVersion};
                 var data = request.GetBytes();
                 return this.Send(data, data.Length);
             }
@@ -248,6 +249,10 @@ namespace Moderator_Server.Backend
                                             TradeServer.logger.WriteLine(userId + "Invalid TransCode, could Not Login");
 
                                         }
+                                        else if(err==98)
+                                        {
+                                            TradeServer.logger.WriteLine(userId + "Invalid Version, could Not Login");
+                                        }
                                         else
                                             TradeServer.logger.WriteLine(userId + "_" + serverName + "Logged In");
                                     }
@@ -275,6 +280,7 @@ namespace Moderator_Server.Backend
                 catch(Exception ex)
                 {
                     Debug.WriteLine("Error in ReceiveLoop "+ ex);
+                    TradeServer.logger.WriteError("Error in Receiving loop "+ex.Message);
                     Program.Gui.updateServerStatus();
                     StopServer();
                     break;

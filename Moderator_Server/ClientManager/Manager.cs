@@ -8,6 +8,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Globalization;
+using System.Collections.Concurrent;
 
 namespace Moderator_Server.ClientManager
 {
@@ -21,6 +22,7 @@ namespace Moderator_Server.ClientManager
         private readonly object lockerHedge = new object();
         private static readonly object clientLock = new object();
         public  Dictionary<int, Client> ClientDataBase = new Dictionary<int, Client>();
+        System.Collections.Concurrent.ConcurrentDictionary<int, Thread> dicThreadSendPrevious = new ConcurrentDictionary<int, Thread>();
         public Manager()
         {
             //clnt = new Client();
@@ -105,11 +107,19 @@ namespace Moderator_Server.ClientManager
             {
                 clientSessionChecker.Abort();
             }
-            if (SendPrevious != null && SendPrevious.IsAlive)
+           
+        }
+        public void DisposePrevious(Thread sendPrevious)
+        {
+            try
             {
-                SendPrevious.Abort();
-                SendPrevious = null;
+                if (sendPrevious != null && sendPrevious.IsAlive)
+                {
+                    sendPrevious.Abort();
+                    sendPrevious = null;
+                }
             }
+            catch { }
         }
         //public void SendTradeToFetcher(byte[] data)
         //{
@@ -287,9 +297,23 @@ namespace Moderator_Server.ClientManager
                 client.InitiateReceiveLoop();
                 Program.Gui.UpdatestatusServercon();
 
-                DisposePrevious();
-                SendPrevious = new Thread(() => SendPreviousTrades(client.ClientName,detail.userId));
-                SendPrevious.Start();
+                //DisposePrevious();
+                //SendPrevious = new Thread(() => SendPreviousTrades(client.ClientName,detail.userId));
+                //SendPrevious.Start();
+                if (!dicThreadSendPrevious.ContainsKey(detail.userId))
+                {
+                    Thread sendPrevious = new Thread(() => SendPreviousTrades(client.ClientName, detail.userId));
+                    dicThreadSendPrevious.TryAdd(detail.userId, sendPrevious);
+                    sendPrevious.Start();
+                }
+                else
+                {
+                    var existingThread = dicThreadSendPrevious[detail.userId];
+                    DisposePrevious(existingThread);
+                    Thread sendPrevious = new Thread(() => SendPreviousTrades(client.ClientName, detail.userId));
+                    dicThreadSendPrevious[detail.userId] = sendPrevious;
+                    sendPrevious.Start();
+                }
 
                 //HedgerTradeResponse respn = new HedgerTradeResponse { exp = 1309617000, legNo = 2, neatId = 34561, ordNo = 1987642, pfBuySell = 1, pfId = 5, ratios = "1:2:1:2", StgId = 12, stgType = 1, token = 35000, tokens = "35000:56771:0:0", tradeId = 1234987, trdPrice = 23.5F, trdQnty = 75, userCode = "Ad007" };
                 //SendTradesToClient(5001, respn.GetBytes());
@@ -395,12 +419,13 @@ namespace Moderator_Server.ClientManager
         }
         private void SendPreviousTrades(string clientname,int userid)
         {
+            
             #region 
             try
             {
                 string tmpPath = Application.StartupPath + "\\" + clientname+"_"+userid + "tmp.txt";
                 File.Copy(Program.Gui.tradeServer.ModeratorTradeFile, tmpPath, true);
-                Thread.Sleep(1000);
+                Thread.Sleep(1000); //NeatID List is updating on Receiving loop(neat id data  received from hedger)
                 if (clientname == Constant.Flag.TradeMatch || clientname == Constant.Flag.Hedger)
                 {
                     byte[] data = new byte[8];
@@ -410,7 +435,7 @@ namespace Moderator_Server.ClientManager
 
                     SendTradesToClient1_previous(clientname, data,userid);
                 }
-
+               // Thread.Sleep(20000);
                 using (StreamReader sr = new StreamReader(tmpPath))
                 {
                     while (sr.Peek() > 0)
@@ -517,6 +542,10 @@ namespace Moderator_Server.ClientManager
             {
                 TradeServer.logger.WriteError("Error in SendPreviousTrades :" + ex);
                 Debug.WriteLine("Error in SendPreviousTrades :" + ex);
+            }
+            finally
+            {
+
             }
 
             #endregion

@@ -64,7 +64,7 @@ namespace Moderator_Server
                 {
                     FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     StreamReader sr = new StreamReader(fs);
-
+                    sr.ReadLine();
                     while (sr.Peek() > 0)
                     {
                         string line = sr.ReadLine();

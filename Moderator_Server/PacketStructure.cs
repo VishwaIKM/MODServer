@@ -79,6 +79,7 @@ namespace Moderator_Server
         public int userId;
         public int password;
         public int userNo = 1;
+        public int version;
         //public char[] pswd;
 
         public NewLoginRequest()
@@ -92,7 +93,7 @@ namespace Moderator_Server
 
             BitConverter.GetBytes((int)1001).CopyTo(data, 0);
             BitConverter.GetBytes((short)24).CopyTo(data, 2);
-            BitConverter.GetBytes((int)0).CopyTo(data, 4);
+            BitConverter.GetBytes(version).CopyTo(data, 4);
             BitConverter.GetBytes(userNo).CopyTo(data, 8);
             Encoding.UTF8.GetBytes(password.ToString().PadRight(8)).CopyTo(data, 12);
             BitConverter.GetBytes(userId).CopyTo(data, 20);

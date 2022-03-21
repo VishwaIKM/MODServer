@@ -24,9 +24,9 @@ namespace Moderator_Server.Backend
                 {
                     FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     StreamReader sr = new StreamReader(fs);
-
+                    sr.ReadLine();
                     while (sr.Peek() > 0)
-                    {
+                    {   
                         string line = sr.ReadLine();
                         if (!string.IsNullOrEmpty(line))
                         {
@@ -35,12 +35,21 @@ namespace Moderator_Server.Backend
                             string mod = arr[1];
                             string ipPort = arr[2];
                             int passWord = Convert.ToInt32(arr[3]);
+                            int clientVersion;
+                            if (arr.Length >= 5)
+                            {
+                                clientVersion = Convert.ToInt32(arr[4]);
+                            }
+                            else
+                            {
+                                clientVersion=0;
+                            }
                             string[] ln = arr[2].Split(':');
                             string ip = ln[0];
                             int port = Convert.ToInt32(ln[1]);
                             if (!Servers.ContainsKey(userId))
                             {
-                                Server srvr = new Server() { ipAddress = ip, port = port, userId = userId, serverName = mod, passWord = passWord };
+                                Server srvr = new Server() { ipAddress = ip, port = port, userId = userId, serverName = mod, passWord = passWord,clientVersion=clientVersion };
                                 this.Servers.Add(userId, srvr);
                             }
                         }
@@ -58,6 +67,7 @@ namespace Moderator_Server.Backend
             catch (Exception ex)
             {
                 TradeServer.logger.WriteLine("Error in Loading Server Detail :" + ex);
+
             }
                
         }
