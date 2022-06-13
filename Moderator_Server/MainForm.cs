@@ -49,7 +49,8 @@ namespace Moderator_Server
             tradeServer = new TradeServer();
             tradeServer.LoadTradeServer();
             lblModeratorCredentials.Text = tradeServer.ToString();
-
+            timer1.Enabled = true;
+           
             ServerGuiInstance = new Dictionary<int, ListViewItem>();
             string path = Constant.path.startUpPath + "\\ModeratorDetail.txt";
 
@@ -416,12 +417,26 @@ namespace Moderator_Server
 
         private void Reload_btn_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Do you really want to update Moderator Details", "Reload", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (MessageBox.Show("Do you really want to update Moderator Details", "Reload",MessageBoxButtons.YesNo,MessageBoxIcon.Question,MessageBoxDefaultButton.Button2,MessageBoxOptions.DefaultDesktopOnly)==DialogResult.Yes)
             {
-                string path = Constant.path.startUpPath + "\\ModeratorDetail.txt";
-                tradeServer.serverController.LoadServerDetails(path);
-                AddServerToGui(path);
+                if (MessageBox.Show("Have you Updated the Following Details ? \n TradeMatch :- NeatID And DB Files" +
+                    "\n Hedger :- Strategy File And Neat File" +
+                    "\n TradeManager :- Database Files(Neat,Ctcl..etc)","Cofirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2, MessageBoxOptions.DefaultDesktopOnly) == DialogResult.Yes)
+                {
+                    string path = Constant.path.startUpPath + "\\ModeratorDetail.txt";
+                    tradeServer.serverController.LoadServerDetails(path);
+                    AddServerToGui(path);
+                }
             }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                ModTrade.Text = tradeServer.GetTotalTradeCount().ToString();
+            }
+            catch { }
         }
     }
 }

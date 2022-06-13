@@ -14,9 +14,11 @@ namespace Moderator_Server
         //Instances
 
         ConcurrentQueue<byte[]> ModeratorTardeQueue = new ConcurrentQueue<byte[]>();
+        ConcurrentQueue<HedgerTradeResponse> fileWritingDataQueue = new ConcurrentQueue<HedgerTradeResponse>();
         List<int> TradeIdList = new List<int>();
 
         private Thread DequeuThreadMod;
+        private Thread dequeueFileWritingThread;
         bool dequBool = true;
         public static Logger logger;
         public Contract contract;
@@ -88,7 +90,18 @@ namespace Moderator_Server
                 DequeuThreadMod = new Thread(EmptyModeratorQueue);
                 DequeuThreadMod.Start();
             }
-            
+            if (dequeueFileWritingThread != null && dequeueFileWritingThread.IsAlive)
+            {
+                dequeueFileWritingThread.Abort();
+                dequeueFileWritingThread = new Thread(EmptyFileWritingQueue);
+                dequeueFileWritingThread.Start();
+            }
+            else
+            {
+                dequeueFileWritingThread = new Thread(EmptyFileWritingQueue);
+                dequeueFileWritingThread.Start();
+            }
+
             clntManager.StartClienthandling(Interface, Port);
              
         }
@@ -125,7 +138,12 @@ namespace Moderator_Server
                 DequeuThreadMod.Abort();
                 DequeuThreadMod = null;
             }
-            
+            if (dequeueFileWritingThread != null && dequeueFileWritingThread.IsAlive)
+            {
+                dequeueFileWritingThread.Abort();
+                dequeueFileWritingThread = null;
+            }
+
             clntManager.StopClient();
             clntManager.Dispose();
             if (ModeratorTradeWriter != null)
@@ -155,12 +173,10 @@ namespace Moderator_Server
                             {
                                 HedgerTradeResponse resp = new HedgerTradeResponse();
                                 resp.GetData(data);
-                                
-
                                 if (!TradeIdList.Contains(resp.tradeId))
                                 {
                                     TradeIdList.Add(resp.tradeId);
-
+                                    fileWritingDataQueue.Enqueue(resp);
                                     byte[] HedgerData = new byte[110];
                                     BitConverter.GetBytes(110).CopyTo(HedgerData, 0);
                                     BitConverter.GetBytes(95).CopyTo(HedgerData, 4);
@@ -177,7 +193,7 @@ namespace Moderator_Server
                                     { TradeTime = resp.tradeTime, UserCode = resp.userCode, Token = resp.token, TradePrice = resp.trdPrice, TradeQnty = resp.trdQnty,Tradeid=resp.tradeId};
 
                                     clntManager.SendTradesToClient(Constant.Flag.TradeManager, mngr.GetBytes());
-
+                                    /*
                                     DateTime dt = Constant.Flag.GetDateFromSeconds(resp.Expiry);
                                     DateTime tradeTime = Constant.Flag.GetDateFromSeconds(resp.tradeTime);
 
@@ -214,22 +230,81 @@ namespace Moderator_Server
                                     //string tradeLog = $"{resp.tradeId},{resp.userCode.Trim()},{resp.neatId},{resp.ordNo.ToString()},{resp.token},{resp.trdQnty},{(resp.trdPrice).ToString("0.00")},{tradeTime.ToString("yyyy-MM-dd HH:mm:ss")},{ dt.ToString("dd MMM yyyy").ToUpper()},{resp.pfId},{resp.stgType},{resp.pfBuySell},{resp.legNo},{resp.StgId},{resp.ratios.Trim()},{resp.tokens.Trim()}";
 
                                     string tradeLog = $"{resp.tradeId},{resp.userCode.Trim()},{resp.neatId},{resp.ordNo.ToString()},{script},{instrument},{(strike / 100.0).ToString()},{option},{expr},{resp.trdQnty},{(resp.trdPrice).ToString("0.00")},{Constant.Flag.GetDateFromSeconds(resp.tradeTime).ToString("M-dd-yyyy hh:mm:ss tt")},{resp.tradeId},{resp.token},{resp.StgId},{resp.pfId},{resp.stgType},{resp.pfBuySell},{resp.legNo},{resp.ratios.Trim()},{resp.tokens.Trim()}";
-
-
-                                    ModTradeCount++;
                                     Program.Gui.tradeServer.ModeratorTradeWriter.WriteLine(tradeLog);
+                                    */
+                                      ModTradeCount++;
+                                    
                                     //if(ModTradeCount % 50 == 0)
-                                    Program.Gui.UpdateTradeCount(ModTradeCount);
+                                   // Program.Gui.UpdateTradeCount(ModTradeCount);
 
                                 }
+                               
                             }
                         }
                     }
-                    else
-                        Thread.Sleep(100);
+                   // else
+                        //Thread.Sleep(100);
                 }
             }
             catch { }
+        }
+
+        private void EmptyFileWritingQueue()
+        {
+            try
+            {
+                while(dequBool)
+                {
+                    if(fileWritingDataQueue.Count>0)
+                    {
+                        HedgerTradeResponse resp;
+                        if(fileWritingDataQueue.TryDequeue(out resp))
+                        {
+                            DateTime dt = Constant.Flag.GetDateFromSeconds(resp.Expiry);
+                            DateTime tradeTime = Constant.Flag.GetDateFromSeconds(resp.tradeTime);
+
+                            string script = "";
+                            string instrument = "";
+                            string option = "";
+                            string expr = "";
+                            int strike = 0;
+                            if (resp.token > 0)
+                            {
+                                var info = contract.GetTokenDetails(resp.token);
+                                {
+                                    if (info != null)
+                                    {
+                                        script = info.script;
+                                        instrument = info.instrument.ToString();
+                                        option = info.option.ToString();
+                                        DateTime dts = Constant.Flag.GetDateFromSeconds(info.exp);
+                                        expr = dt.ToString("dd MMM yyyy").ToUpper();
+                                        strike = info.strike;
+
+                                    }
+                                    else
+                                    {
+                                        logger.WriteLine("Token Detail Not Found in Contract file :" + resp.token);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                logger.WriteLine("Token : " + resp.token);
+                            }
+                             string tradeLog = $"{resp.tradeId},{resp.userCode.Trim()},{resp.neatId},{resp.ordNo.ToString()},{script},{instrument},{(strike / 100.0).ToString()},{option},{expr},{resp.trdQnty},{(resp.trdPrice).ToString("0.00")},{Constant.Flag.GetDateFromSeconds(resp.tradeTime).ToString("M-dd-yyyy hh:mm:ss tt")},{resp.tradeId},{resp.token},{resp.StgId},{resp.pfId},{resp.stgType},{resp.pfBuySell},{resp.legNo},{resp.ratios.Trim()},{resp.tokens.Trim()}";
+                            Program.Gui.tradeServer.ModeratorTradeWriter.WriteLine(tradeLog);
+                        }
+                    }
+
+                }
+            }
+            catch { }
+        }
+
+        public long GetTotalTradeCount()
+        {
+            return ModTradeCount;
         }
     }
 }

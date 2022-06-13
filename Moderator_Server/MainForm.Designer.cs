@@ -28,19 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.ModTrade = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.btnDisconnect = new System.Windows.Forms.Button();
             this.lblModeratorCredentials = new System.Windows.Forms.Label();
             this.btnConnect = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.Reload_btn = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lvServerDetail = new System.Windows.Forms.ListView();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.lvclientdetails = new System.Windows.Forms.ListView();
             this.lvLogs = new System.Windows.Forms.ListView();
-            this.Reload_btn = new System.Windows.Forms.Button();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -116,6 +118,16 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Moderator details";
             // 
+            // Reload_btn
+            // 
+            this.Reload_btn.Location = new System.Drawing.Point(595, 9);
+            this.Reload_btn.Name = "Reload_btn";
+            this.Reload_btn.Size = new System.Drawing.Size(150, 27);
+            this.Reload_btn.TabIndex = 9;
+            this.Reload_btn.Text = "Update Moderator Details";
+            this.Reload_btn.UseVisualStyleBackColor = true;
+            this.Reload_btn.Click += new System.EventHandler(this.Reload_btn_Click);
+            // 
             // panel1
             // 
             this.panel1.Controls.Add(this.lvServerDetail);
@@ -189,15 +201,10 @@
             this.lvLogs.TabIndex = 0;
             this.lvLogs.UseCompatibleStateImageBehavior = false;
             // 
-            // Reload_btn
+            // timer1
             // 
-            this.Reload_btn.Location = new System.Drawing.Point(595, 9);
-            this.Reload_btn.Name = "Reload_btn";
-            this.Reload_btn.Size = new System.Drawing.Size(150, 27);
-            this.Reload_btn.TabIndex = 9;
-            this.Reload_btn.Text = "Update Moderator Details";
-            this.Reload_btn.UseVisualStyleBackColor = true;
-            this.Reload_btn.Click += new System.EventHandler(this.Reload_btn_Click);
+            this.timer1.Interval = 10000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // MainForm
             // 
@@ -241,6 +248,7 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ListView lvclientdetails;
         private System.Windows.Forms.Button Reload_btn;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
