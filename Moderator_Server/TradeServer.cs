@@ -15,7 +15,7 @@ namespace Moderator_Server
 
         ConcurrentQueue<byte[]> ModeratorTardeQueue = new ConcurrentQueue<byte[]>();
         ConcurrentQueue<HedgerTradeResponse> fileWritingDataQueue = new ConcurrentQueue<HedgerTradeResponse>();
-        List<int> TradeIdList = new List<int>();
+        SortedSet<int> TradeIdList = new SortedSet<int>();
 
         private Thread DequeuThreadMod;
         private Thread dequeueFileWritingThread;

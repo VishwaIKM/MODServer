@@ -160,6 +160,7 @@ namespace Moderator_Server
                             if (arrline[8].Trim() == Constant.OptionType.XX.ToString())
                             {
                                 otp = Constant.OptionType.XX;
+                                strike = 0;
                                 //continue;
                             }
 
