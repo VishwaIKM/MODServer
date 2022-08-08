@@ -180,6 +180,7 @@ namespace Moderator_Server
             tokens = Encoding.ASCII.GetString(data, 77, 25);
         }
     }
+  
     class TradeMatchResponse
     {
         public int NeatId;

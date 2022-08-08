@@ -181,7 +181,7 @@ namespace Moderator_Server
                     this.lvLogs.Items.Insert(0, itm);
                 }
             }
-            catch { }
+            catch(Exception ex) { TradeServer.logger.WriteLine(ex.ToString()); }
         }
         public void UpdateTradeCount(long tradeCount)
         {
@@ -201,31 +201,38 @@ namespace Moderator_Server
         }
         private void lvServerDetail_MouseDoubleClick_1(object sender, MouseEventArgs e)
         {
-            ListViewHitTestInfo listViewHitTestInfo = lvServerDetail.HitTest(e.X, e.Y);
-            // Index of the clicked ListView column
-            int columnIndex = listViewHitTestInfo.Item.SubItems.IndexOf(listViewHitTestInfo.SubItem);
-            if (columnIndex > -1)
+            try
             {
-                int serverId = int.Parse(listViewHitTestInfo.Item.SubItems[1].Text);
-                if (tradeServer.serverController.Connected(serverId))
+                ListViewHitTestInfo listViewHitTestInfo = lvServerDetail.HitTest(e.X, e.Y);
+                // Index of the clicked ListView column
+                int columnIndex = listViewHitTestInfo.Item.SubItems.IndexOf(listViewHitTestInfo.SubItem);
+                if (columnIndex > -1)
                 {
-                    if (DialogResult.OK == MessageBox.Show("Do you really want to disconnect Server " + serverId, "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2))
+                    int serverId = int.Parse(listViewHitTestInfo.Item.SubItems[1].Text);
+                    if (tradeServer.serverController.Connected(serverId))
                     {
-                        tradeServer.serverController.DisconnectServer(serverId);
-                        listViewHitTestInfo.Item.ForeColor = Color.Red;
-                        listViewHitTestInfo.Item.SubItems[3].Text = "DISCONNECTED";
+                        if (DialogResult.OK == MessageBox.Show("Do you really want to disconnect Server " + serverId, "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2))
+                        {
+                            tradeServer.serverController.DisconnectServer(serverId);
+                            listViewHitTestInfo.Item.ForeColor = Color.Red;
+                            listViewHitTestInfo.Item.SubItems[3].Text = "DISCONNECTED";
+                        }
                     }
-                }
-                else
-                {
-                    if (tradeServer.serverController.ConnectToBackend(serverId))
+                    else
                     {
-                        listViewHitTestInfo.Item.ForeColor = Color.Green;
-                        listViewHitTestInfo.Item.SubItems[3].Text = "CONNECTED";
+                        if (tradeServer.serverController.ConnectToBackend(serverId))
+                        {
+                            listViewHitTestInfo.Item.ForeColor = Color.Green;
+                            listViewHitTestInfo.Item.SubItems[3].Text = "CONNECTED";
+                        }
+
                     }
-                    
+                    //updateDashboard();
                 }
-                //updateDashboard();
+            }
+            catch(Exception ex)
+            {
+                TradeServer.logger.WriteLine(ex.ToString());
             }
         }
         public void updateServerStatus()
@@ -256,7 +263,7 @@ namespace Moderator_Server
                    // updateDashboard();
                 }
             }
-            catch { }
+            catch(Exception ex) { TradeServer.logger.WriteLine(ex.ToString()); }
         }
 
         private void MainForm_MaximumSizeChanged(object sender, EventArgs e)
@@ -288,7 +295,7 @@ namespace Moderator_Server
                         lvclientdetails.Items.Add(itm);
                     }
                 }
-                catch { };
+                catch(Exception ex) { TradeServer.logger.WriteLine(ex.ToString()); };
             }
 
 
@@ -327,9 +334,9 @@ namespace Moderator_Server
                     }
                      
                 }
-                catch
+                catch(Exception ex)
                 {
-                    
+                    TradeServer.logger.WriteLine(ex.ToString());
                 }
             }
         }
@@ -423,9 +430,16 @@ namespace Moderator_Server
                     "\n Hedger :- Strategy File And Neat File" +
                     "\n TradeManager :- Database Files(Neat,Ctcl..etc)","Cofirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2, MessageBoxOptions.DefaultDesktopOnly) == DialogResult.Yes)
                 {
-                    string path = Constant.path.startUpPath + "\\ModeratorDetail.txt";
-                    tradeServer.serverController.LoadServerDetails(path);
-                    AddServerToGui(path);
+                    try
+                    {
+                        string path = Constant.path.startUpPath + "\\ModeratorDetail.txt";
+                        tradeServer.serverController.LoadServerDetails(path);
+                        AddServerToGui(path);
+                    }
+                    catch(Exception ex)
+                    {
+                        TradeServer.logger.WriteLine(ex.ToString());
+                    }
                 }
             }
         }

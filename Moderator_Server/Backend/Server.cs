@@ -24,6 +24,7 @@ namespace Moderator_Server.Backend
         public string ipAddress, serverName;
         public int port, userId, passWord,clientVersion;
         public const int LoginResponse = 1001;
+    //    public const int NeatIDDetails = 1099;
         
         public void StopServer()
         {

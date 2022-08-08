@@ -167,160 +167,167 @@ namespace Moderator_Server.ClientManager
         }
         private void HandleClientConnection(TcpClient newClient)
         {
-            byte[] data = new byte[4];
-            int size = 4;
-            int received = 0;
             try
             {
-                while (received < size)
+                byte[] data = new byte[4];
+                int size = 4;
+                int received = 0;
+                try
                 {
-                    received += newClient.Client.Receive(data, received, size - received, 0);
+                    while (received < size)
+                    {
+                        received += newClient.Client.Receive(data, received, size - received, 0);
+                    }
                 }
-            }
-            catch { }
+                catch { }
 
-            ClientDetails detail = new ClientDetails();
-            detail.GetValue(data, 0);
+                ClientDetails detail = new ClientDetails();
+                detail.GetValue(data, 0);
 
-            if (ClientDataBase.ContainsKey(detail.userId))
-            {
-                var client = ClientDataBase[detail.userId];
-                client.SetSocket(newClient);
-                TradeServer.logger.WriteLine("User Id : " + detail.userId + " " + client.ClientName + " " + "Connected");
-                #region
-                // client._IsEmptyQueAllowed = false;
-                // client.StartClientDequThread();
-
-                //if (client.ClientID == Program.Gui.tradeServer.RMSHedger || client.ClientID == Program.Gui.tradeServer.TradeManager || client.ClientID == Program.Gui.tradeServer.TradeMatch)
-                //{
-                //    Program.Gui.tradeServer._ISDequAllowed = false;
-                //    string path = Program.Gui.tradeServer.GetModeratorPreviousTradesFile();
-                //    if (path != null)
-                //    {
-                //        string tempPath = Constant.path.startUpPath + "_trd.tmp";
-                //        File.Copy(path, tempPath, true);
-                //        Program.Gui.tradeServer._ISDequAllowed = true;
-                //        // Using(StreamReader sr = new StreamReader(tempPath))
-                //        using (StreamReader sr = new StreamReader(tempPath))
-                //        {
-                //           // sr.ReadLine();
-                //            if(client.ClientID == Program.Gui.tradeServer.TradeMatch)
-                //            {
-                //                while (!sr.EndOfStream)
-                //                {
-                //                    string[] input = sr.ReadLine().Split(',');
-                //                    if (input.Length > 7)
-                //                    {
-                //                        TradeMatchResponse trd = new TradeMatchResponse();
-                //                        trd.NeatId = Convert.ToInt32(input[1]);
-                //                        trd.Token = Convert.ToInt32(input[3]);
-                //                        trd.TradePrice = Convert.ToSingle(input[5]);
-                //                        trd.TradeQnty = Convert.ToInt32(input[4]);
-                //                        trd.exp = Convert.ToInt64(input[6]);
-                //                        byte[] arr = trd.GetBytes();
-                //                        client.Reply(arr, arr.Length);
-                //                    }
-                //                }
-                //            }
-                //            else if (client.ClientID == Program.Gui.tradeServer.RMSHedger)
-                //            {
-                //                while (!sr.EndOfStream)
-                //                {
-                //                    string[] input = sr.ReadLine().Split(',');
-                //                    if (input.Length > 13)
-                //                    {
-                //                        HedgerTradeResponse hdgr = new HedgerTradeResponse();
-                //                        hdgr.userCode = input[0];
-                //                        hdgr.neatId = Convert.ToInt32(input[1]);
-                //                        hdgr.ordNo = Convert.ToInt64(input[2]);
-                //                        hdgr.token = Convert.ToInt32(input[3]);
-                //                        hdgr.trdQnty = Convert.ToInt32(input[4]);
-                //                        hdgr.trdPrice = Convert.ToSingle(input[5]);
-                //                        hdgr.exp = Convert.ToInt64(input[6]);
-                //                        hdgr.tradeId = Convert.ToInt32(input[7]);
-                //                        hdgr.pfId = Convert.ToInt32(input[8]);
-                //                        hdgr.stgType = Convert.ToInt32(input[9]);
-                //                        hdgr.pfBuySell = Convert.ToInt32(input[10]);
-                //                        hdgr.legNo = Convert.ToInt32(input[11]);
-                //                        hdgr.ratios = input[12];
-                //                        hdgr.tokens = input[13];
-
-                //                        byte[] arr = hdgr.GetBytes();
-                //                        client.Reply(arr, arr.Length);
-                //                    }
-                //                }
-                //            }
-
-                //        }
-                //        File.Delete(tempPath); 
-                //    }
-                //    else
-                //    {
-                //        TradeServer.logger.WriteLine("Previous Moderator TradeFile File Does not exists");
-                //    }
-                //}
-                //if (client.ClientID == Program.Gui.tradeServer.TradeMatch)
-                //{
-                //    Program.Gui.tradeServer._ISDequAllowed = false;
-                //    string path = Program.Gui.tradeServer.GetDropCopyPreviousTradesFile();
-                //    if (path != null)
-                //    {
-                //        string tempPath = Constant.path.startUpPath + "_droptrd.tmp";
-                //        File.Copy(path, tempPath, true);
-                //        Program.Gui.tradeServer._ISDequAllowed = true;
-                //        // Using(StreamReader sr = new StreamReader(tempPath))
-                //        using (StreamReader sr = new StreamReader(tempPath))
-                //        {
-                //            sr.ReadLine();
-                //            while (!sr.EndOfStream)
-                //            {
-                //                string[] input = sr.ReadLine().Split(',');
-                //                if (input.Length > 10)
-                //                {
-
-                //                }
-
-                //            }
-                //        }
-                //        File.Delete(tempPath);
-                //    }
-                //    else
-                //    {
-                //        TradeServer.logger.WriteLine("Previous Drop Copy File Does not exists");
-                //    }
-                //}
-
-                //client._IsEmptyQueAllowed = true;
-                //Program.Gui.tradeServer._ISDequAllowed = true;
-                #endregion
-
-                client.InitiateReceiveLoop();
-                Program.Gui.UpdatestatusServercon();
-
-                //DisposePrevious();
-                //SendPrevious = new Thread(() => SendPreviousTrades(client.ClientName,detail.userId));
-                //SendPrevious.Start();
-                if (!dicThreadSendPrevious.ContainsKey(detail.userId))
+                if (ClientDataBase.ContainsKey(detail.userId))
                 {
-                    Thread sendPrevious = new Thread(() => SendPreviousTrades(client.ClientName, detail.userId));
-                    dicThreadSendPrevious.TryAdd(detail.userId, sendPrevious);
-                    sendPrevious.Start();
+                    var client = ClientDataBase[detail.userId];
+                    client.SetSocket(newClient);
+                    TradeServer.logger.WriteLine("User Id : " + detail.userId + " " + client.ClientName + " " + "Connected");
+                    #region
+                    // client._IsEmptyQueAllowed = false;
+                    // client.StartClientDequThread();
+
+                    //if (client.ClientID == Program.Gui.tradeServer.RMSHedger || client.ClientID == Program.Gui.tradeServer.TradeManager || client.ClientID == Program.Gui.tradeServer.TradeMatch)
+                    //{
+                    //    Program.Gui.tradeServer._ISDequAllowed = false;
+                    //    string path = Program.Gui.tradeServer.GetModeratorPreviousTradesFile();
+                    //    if (path != null)
+                    //    {
+                    //        string tempPath = Constant.path.startUpPath + "_trd.tmp";
+                    //        File.Copy(path, tempPath, true);
+                    //        Program.Gui.tradeServer._ISDequAllowed = true;
+                    //        // Using(StreamReader sr = new StreamReader(tempPath))
+                    //        using (StreamReader sr = new StreamReader(tempPath))
+                    //        {
+                    //           // sr.ReadLine();
+                    //            if(client.ClientID == Program.Gui.tradeServer.TradeMatch)
+                    //            {
+                    //                while (!sr.EndOfStream)
+                    //                {
+                    //                    string[] input = sr.ReadLine().Split(',');
+                    //                    if (input.Length > 7)
+                    //                    {
+                    //                        TradeMatchResponse trd = new TradeMatchResponse();
+                    //                        trd.NeatId = Convert.ToInt32(input[1]);
+                    //                        trd.Token = Convert.ToInt32(input[3]);
+                    //                        trd.TradePrice = Convert.ToSingle(input[5]);
+                    //                        trd.TradeQnty = Convert.ToInt32(input[4]);
+                    //                        trd.exp = Convert.ToInt64(input[6]);
+                    //                        byte[] arr = trd.GetBytes();
+                    //                        client.Reply(arr, arr.Length);
+                    //                    }
+                    //                }
+                    //            }
+                    //            else if (client.ClientID == Program.Gui.tradeServer.RMSHedger)
+                    //            {
+                    //                while (!sr.EndOfStream)
+                    //                {
+                    //                    string[] input = sr.ReadLine().Split(',');
+                    //                    if (input.Length > 13)
+                    //                    {
+                    //                        HedgerTradeResponse hdgr = new HedgerTradeResponse();
+                    //                        hdgr.userCode = input[0];
+                    //                        hdgr.neatId = Convert.ToInt32(input[1]);
+                    //                        hdgr.ordNo = Convert.ToInt64(input[2]);
+                    //                        hdgr.token = Convert.ToInt32(input[3]);
+                    //                        hdgr.trdQnty = Convert.ToInt32(input[4]);
+                    //                        hdgr.trdPrice = Convert.ToSingle(input[5]);
+                    //                        hdgr.exp = Convert.ToInt64(input[6]);
+                    //                        hdgr.tradeId = Convert.ToInt32(input[7]);
+                    //                        hdgr.pfId = Convert.ToInt32(input[8]);
+                    //                        hdgr.stgType = Convert.ToInt32(input[9]);
+                    //                        hdgr.pfBuySell = Convert.ToInt32(input[10]);
+                    //                        hdgr.legNo = Convert.ToInt32(input[11]);
+                    //                        hdgr.ratios = input[12];
+                    //                        hdgr.tokens = input[13];
+
+                    //                        byte[] arr = hdgr.GetBytes();
+                    //                        client.Reply(arr, arr.Length);
+                    //                    }
+                    //                }
+                    //            }
+
+                    //        }
+                    //        File.Delete(tempPath); 
+                    //    }
+                    //    else
+                    //    {
+                    //        TradeServer.logger.WriteLine("Previous Moderator TradeFile File Does not exists");
+                    //    }
+                    //}
+                    //if (client.ClientID == Program.Gui.tradeServer.TradeMatch)
+                    //{
+                    //    Program.Gui.tradeServer._ISDequAllowed = false;
+                    //    string path = Program.Gui.tradeServer.GetDropCopyPreviousTradesFile();
+                    //    if (path != null)
+                    //    {
+                    //        string tempPath = Constant.path.startUpPath + "_droptrd.tmp";
+                    //        File.Copy(path, tempPath, true);
+                    //        Program.Gui.tradeServer._ISDequAllowed = true;
+                    //        // Using(StreamReader sr = new StreamReader(tempPath))
+                    //        using (StreamReader sr = new StreamReader(tempPath))
+                    //        {
+                    //            sr.ReadLine();
+                    //            while (!sr.EndOfStream)
+                    //            {
+                    //                string[] input = sr.ReadLine().Split(',');
+                    //                if (input.Length > 10)
+                    //                {
+
+                    //                }
+
+                    //            }
+                    //        }
+                    //        File.Delete(tempPath);
+                    //    }
+                    //    else
+                    //    {
+                    //        TradeServer.logger.WriteLine("Previous Drop Copy File Does not exists");
+                    //    }
+                    //}
+
+                    //client._IsEmptyQueAllowed = true;
+                    //Program.Gui.tradeServer._ISDequAllowed = true;
+                    #endregion
+
+                    client.InitiateReceiveLoop();
+                    Program.Gui.UpdatestatusServercon();
+
+                    //DisposePrevious();
+                    //SendPrevious = new Thread(() => SendPreviousTrades(client.ClientName,detail.userId));
+                    //SendPrevious.Start();
+                    if (!dicThreadSendPrevious.ContainsKey(detail.userId))
+                    {
+                        Thread sendPrevious = new Thread(() => SendPreviousTrades(client.ClientName, detail.userId));
+                        dicThreadSendPrevious.TryAdd(detail.userId, sendPrevious);
+                        sendPrevious.Start();
+                    }
+                    else
+                    {
+                        var existingThread = dicThreadSendPrevious[detail.userId];
+                        DisposePrevious(existingThread);
+                        Thread sendPrevious = new Thread(() => SendPreviousTrades(client.ClientName, detail.userId));
+                        dicThreadSendPrevious[detail.userId] = sendPrevious;
+                        sendPrevious.Start();
+                    }
+
+                    //HedgerTradeResponse respn = new HedgerTradeResponse { exp = 1309617000, legNo = 2, neatId = 34561, ordNo = 1987642, pfBuySell = 1, pfId = 5, ratios = "1:2:1:2", StgId = 12, stgType = 1, token = 35000, tokens = "35000:56771:0:0", tradeId = 1234987, trdPrice = 23.5F, trdQnty = 75, userCode = "Ad007" };
+                    //SendTradesToClient(5001, respn.GetBytes());
                 }
                 else
                 {
-                    var existingThread = dicThreadSendPrevious[detail.userId];
-                    DisposePrevious(existingThread);
-                    Thread sendPrevious = new Thread(() => SendPreviousTrades(client.ClientName, detail.userId));
-                    dicThreadSendPrevious[detail.userId] = sendPrevious;
-                    sendPrevious.Start();
+                    TradeServer.logger.WriteLine("ClientId :" + detail.userId + "Did not Match with DataBase");
                 }
-
-                //HedgerTradeResponse respn = new HedgerTradeResponse { exp = 1309617000, legNo = 2, neatId = 34561, ordNo = 1987642, pfBuySell = 1, pfId = 5, ratios = "1:2:1:2", StgId = 12, stgType = 1, token = 35000, tokens = "35000:56771:0:0", tradeId = 1234987, trdPrice = 23.5F, trdQnty = 75, userCode = "Ad007" };
-                //SendTradesToClient(5001, respn.GetBytes());
             }
-            else
+            catch(Exception ex)
             {
-                TradeServer.logger.WriteLine("ClientId :" + detail.userId + "Did not Match with DataBase");
+                TradeServer.logger.WriteError("Error on new client connetion" + ex);
             }
         }
 
@@ -344,12 +351,19 @@ namespace Moderator_Server.ClientManager
         {
             lock(locker)
             {
-                foreach (int clId in ClientDataBase.Keys)
+                try
                 {
-                    if (ClientDataBase[clId].ClientName.Contains(clientName))
+                    foreach (int clId in ClientDataBase.Keys.ToArray())
                     {
-                        ClientDataBase[clId].Reply(data, data.Length);
+                        if (ClientDataBase[clId].ClientName.Contains(clientName))
+                        {
+                            ClientDataBase[clId].Reply(data, data.Length);
+                        }
                     }
+                }
+                catch(Exception ex)
+                {
+                    TradeServer.logger.WriteLine(ex.ToString());
                 }
             }
         }
@@ -357,15 +371,22 @@ namespace Moderator_Server.ClientManager
         {
             lock (locker)
             {
-                foreach (int clId in ClientDataBase.Keys)
+                try
                 {
-                    if (clId==uerid)
+                    foreach (int clId in ClientDataBase.Keys.ToArray())
                     {
-                        if (ClientDataBase[clId].ClientName.Contains(clientName))
+                        if (clId == uerid)
                         {
-                            ClientDataBase[clId].Reply(data, data.Length);
+                            if (ClientDataBase[clId].ClientName.Contains(clientName))
+                            {
+                                ClientDataBase[clId].Reply(data, data.Length);
+                            }
                         }
                     }
+                }
+                catch(Exception ex)
+                {
+                    TradeServer.logger.WriteLine(ex.ToString());
                 }
             }
         }
@@ -374,15 +395,22 @@ namespace Moderator_Server.ClientManager
         {
             lock(lockerHedge)
             {
-                foreach (int clId in ClientDataBase.Keys)
+                try
                 {
-                    if (ClientDataBase[clId].ClientName.Contains(clientName))
+                    foreach (int clId in ClientDataBase.Keys.ToArray())
                     {
-                        var detail = ClientDataBase[clId];
-                       
-                        if (detail.NeatIdList.Contains(neat))
-                            ClientDataBase[clId].Reply(data, data.Length);
+                        if (ClientDataBase[clId].ClientName.Contains(clientName))
+                        {
+                            var detail = ClientDataBase[clId];
+
+                            if (detail.NeatIdList.Contains(neat))
+                                ClientDataBase[clId].Reply(data, data.Length);
+                        }
                     }
+                }
+                catch(Exception ex)
+                {
+                    TradeServer.logger.WriteLine(ex.ToString());
                 }
             }
         }
@@ -390,18 +418,25 @@ namespace Moderator_Server.ClientManager
         {
             lock (lockerHedge)
             {
-                foreach (int clId in ClientDataBase.Keys)
+                try
                 {
-                    if (clId==userid)
+                    foreach (int clId in ClientDataBase.Keys.ToArray())
                     {
-                        if (ClientDataBase[clId].ClientName.Contains(clientName))
+                        if (clId == userid)
                         {
-                            var detail = ClientDataBase[clId];
-                            
-                            if (detail.NeatIdList.Contains(neat))
-                                ClientDataBase[clId].Reply(data, data.Length);
+                            if (ClientDataBase[clId].ClientName.Contains(clientName))
+                            {
+                                var detail = ClientDataBase[clId];
+
+                                if (detail.NeatIdList.Contains(neat))
+                                    ClientDataBase[clId].Reply(data, data.Length);
+                            }
                         }
                     }
+                }
+                catch(Exception ex)
+                {
+                    TradeServer.logger.WriteLine(ex.ToString());
                 }
             }
         }
