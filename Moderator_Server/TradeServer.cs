@@ -29,11 +29,12 @@ namespace Moderator_Server
         public string OutPath { get; set; }
         public string ModeratorTradeFile { get; set; }
         public string ContractPath { get; set; }
-        
+        public string CtclPath { get; set; }
         public TradeWriter ModeratorTradeWriter;
         public static int Version;
         public Backend.ServerController serverController;
         public ClientManager.Manager clntManager;
+        public CtclDataBase ctclDataBase;
 
         public void LoadTradeServer()
         {   
@@ -67,7 +68,8 @@ namespace Moderator_Server
                 Environment.Exit(0);
             }
             contract.LoadTokenDeatils(pathcntr);
-
+            ctclDataBase = new CtclDataBase(CtclPath);
+            ctclDataBase.LoadCtclFile();
 
             serverController = new Backend.ServerController();
             string path = Constant.path.startUpPath + "\\ModeratorDetail.txt";
@@ -116,7 +118,7 @@ namespace Moderator_Server
                     Port = ini.Read_int("TRADESERVER", "PORT");
                     OutPath = ini.Read("TRADESERVER", "OUTPATH");
                     ContractPath = ini.Read("TRADESERVER", "CONTRACT");
-
+                    CtclPath = ini.Read("TRADESERVER","CTCLDATABASE");
                     if (!Directory.Exists(OutPath))
                         TradeServer.logger.WriteError("OutPath does not exists");
                     logger.WriteLine("Moderator Server details Loaded");

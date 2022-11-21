@@ -1,8 +1,12 @@
-﻿using System;
+﻿using Moderator_Server.Backend;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 
 namespace Moderator_Server
@@ -11,6 +15,7 @@ namespace Moderator_Server
     {
         private Dictionary<int, ListViewItem> ServerGuiInstance;
         public TradeServer tradeServer;
+        private readonly object lock1 = new object();
         public MainForm()
         {
             InitializeComponent();
@@ -38,7 +43,14 @@ namespace Moderator_Server
             lvServerDetail.Columns.Add("Status",100);
             lvServerDetail.FullRowSelect = true;
             lvServerDetail.MultiSelect = false;
-           // lvServerDetail.GridLines.
+            // lvServerDetail.GridLines.
+
+            lvUserDetails.Columns.Add("Neat ID", 100);
+            lvUserDetails.Columns.Add("User ID", 100);
+            lvUserDetails.Columns.Add("User Name", 250);
+            lvUserDetails.Columns.Add("Status", 200);
+
+            lvUserDetails.View = View.Details;
 
             //groupBoxModeratorInfo.BackColor = Color.LightCyan;
             lvServerDetail.BackColor = Color.LightGray;
@@ -246,18 +258,21 @@ namespace Moderator_Server
                 }
                 else
                 {
-                    foreach (int i in ServerGuiInstance.Keys)
+                    lock (lock1)
                     {
-                        if (tradeServer.serverController.Connected(i))
+                        foreach (int i in ServerGuiInstance.Keys)
                         {
-                            ServerGuiInstance[i].ForeColor = Color.Green;
-                            ServerGuiInstance[i].SubItems[3].Text = "CONNECTED";
-                        }
-                        else
-                        {
-                            ServerGuiInstance[i].ForeColor = Color.Red;
-                            ServerGuiInstance[i].SubItems[3].Text = "DISCONNECTED";
-                           
+                            if (tradeServer.serverController.Connected(i))
+                            {
+                                ServerGuiInstance[i].ForeColor = Color.Green;
+                                ServerGuiInstance[i].SubItems[3].Text = "CONNECTED";
+                            }
+                            else
+                            {
+                                ServerGuiInstance[i].ForeColor = Color.Red;
+                                ServerGuiInstance[i].SubItems[3].Text = "DISCONNECTED";
+
+                            }
                         }
                     }
                    // updateDashboard();
@@ -435,6 +450,7 @@ namespace Moderator_Server
                         string path = Constant.path.startUpPath + "\\ModeratorDetail.txt";
                         tradeServer.serverController.LoadServerDetails(path);
                         AddServerToGui(path);
+                        tradeServer.ctclDataBase.LoadCtclFile();
                     }
                     catch(Exception ex)
                     {
@@ -452,5 +468,62 @@ namespace Moderator_Server
             }
             catch { }
         }
+
+     
+        //private void lvServerDetail_MouseDown(object sender, MouseEventArgs e)
+        //{
+        //    if (e.Button == MouseButtons.Right)
+        //    {
+        //        // if (lvQtyPlus.FocusedItem.Bounds.Contains(e.Location))
+        //        {
+        //            ContextMenuStrip ContextMenu = new ContextMenuStrip();
+        //            ToolStripMenuItem mnuUserDetails = new ToolStripMenuItem("User Details");
+        //            mnuUserDetails.Click += UserDetails_Click;
+        //            ContextMenu.Items.Add(mnuUserDetails);
+        //            lvServerDetail.ContextMenuStrip = ContextMenu;
+        //        }
+        //    }
+        //}
+
+        public void UpdateNeatDetails(ConcurrentDictionary<int,UserDtStruct>dicNeatData)
+        {
+           
+            UpdateList(dicNeatData);
+            
+        }
+        delegate void UpdateListdata(ConcurrentDictionary<int, UserDtStruct> dicNeatData);
+        public void UpdateList(ConcurrentDictionary<int, UserDtStruct> dicNeatData)
+        {
+            try
+            {
+                if (this.InvokeRequired)
+                {
+                    UpdateListdata update = new UpdateListdata(UpdateList);
+                    this.Invoke(update, dicNeatData);
+                }
+                else
+                {
+                    lvUserDetails.Items.Clear();
+                    foreach (int neat in dicNeatData.Keys.ToArray())
+                    {
+                        UserDtStruct dt = dicNeatData[neat];
+                        string st = dt.Status == true ? "Connected" : "DisConnected";
+                        ListViewItem item = new ListViewItem(dt.NeatID.ToString());
+                        if (dt.Status) { item.ForeColor = Color.Green; } else { item.ForeColor = Color.Red; }
+                        item.SubItems.Add(dt.UserID.ToString());
+                        item.SubItems.Add(dt.UserName);
+                        item.SubItems.Add(st);
+                        lvUserDetails.Items.Insert(0, item);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TradeServer.logger.WriteError("Error while Updting NeatID Details" + ex);
+            }
+
+        }
+
+
     }
 }

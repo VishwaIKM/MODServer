@@ -12,6 +12,7 @@ namespace Moderator_Server.Constant
         public const int InhouseTrade = 100;
         public const int RmsHedger = 501;
         public const int HedgerTrdResponse = 502;
+        public const int NeatIdDetails = 1098;
 
         public const string TradeMatch = "TRADEMATCH";
         public const string TradeManager = "TRADEMANAGER";

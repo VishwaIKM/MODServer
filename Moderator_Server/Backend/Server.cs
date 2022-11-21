@@ -24,8 +24,11 @@ namespace Moderator_Server.Backend
         public string ipAddress, serverName;
         public int port, userId, passWord,clientVersion;
         public const int LoginResponse = 1001;
-    //    public const int NeatIDDetails = 1099;
-        
+        private readonly object lock1 = new object();
+        private readonly object lock2 = new object();
+
+        //    public const int NeatIDDetails = 1099;
+
         public void StopServer()
         {
             if (instance != null && instance.Client != null && instance.Client.Connected)
@@ -51,37 +54,41 @@ namespace Moderator_Server.Backend
         }
         public bool Connect()
         {
-            try
+            lock (lock1)
             {
-                if (instance == null || instance.Client == null)
+                try
                 {
-                    instance = new TcpClient();
-                    instance.Connect(this.ipAddress, this.port);
-                  //  instance.Connect("198.168.1.152", 1998);
-
-                    if (instance.Connected)
+                    if (instance == null || instance.Client == null)
                     {
-                        HandleBackendResponses();
-                        SendLogin();
-                        _IsConnected = true;
-                        Pinger = new System.Threading.Thread(SendPing);
-                        Pinger.Start();
-                        
-                       // TradeServer.logger.WriteLine(userId + "Logged In");
-                    }
+                        instance = new TcpClient();
+                        instance.Connect(this.ipAddress, this.port);
+                        //  instance.Connect("198.168.1.152", 1998);
 
-                    return instance.Connected;
+                        if (instance.Connected)
+                        {
+                            HandleBackendResponses();
+                            SendLogin();
+                            _IsConnected = true;
+                            Pinger = new System.Threading.Thread(SendPing);
+                            Pinger.Start();
+
+                            // TradeServer.logger.WriteLine(userId + "Logged In");
+                        }
+
+                        return instance.Connected;
+                    }
+                    else
+                        return true;
                 }
-                else
-                    return true;
+                catch (Exception ex)
+                {
+                    instance.Client.Dispose();
+                    instance = null;
+                    // MessageBox.Show("Error in Connecting to " + this.ipAddress + ":" + this.port + ex);
+                    return false;
+                }
             }
-            catch(Exception ex)
-            {
-                instance.Client.Dispose();
-                instance = null;
-                MessageBox.Show("Error in Connecting to " + this.ipAddress + ":" + this.port + ex);
-                return false;
-            }
+
         }
         private void SendPing()
         {
@@ -103,10 +110,13 @@ namespace Moderator_Server.Backend
         {
             get
             {
-                if (instance != null && instance.Client != null)
-                    return instance.Connected;
-                else
-                    return false;
+                lock (lock2)
+                {
+                    if (instance != null && instance.Client != null)
+                        return instance.Connected;
+                    else
+                        return false;
+                }
             }
         }
         public void HandleBackendResponses()
@@ -191,6 +201,7 @@ namespace Moderator_Server.Backend
             catch
             {
                 Program.Gui.updateServerStatus();
+                Program.Gui.tradeServer.serverController.UpdateLogedOutNeatID(userId, 0);
                 TradeServer.logger.WriteLine(userId + " " + serverName+ "Logged Out");
             }
 
@@ -267,6 +278,15 @@ namespace Moderator_Server.Backend
                                     }
                                     break;
                                 }
+                            case Constant.Flag.NeatIdDetails:
+                                {
+                                    if(Receive(ref ReceivingBuffer,4))
+                                    {
+                                        int NeatId = BitConverter.ToInt32(ReceivingBuffer, 0);
+                                        Program.Gui.tradeServer.serverController.UpdateLogedInNeatID(userId, NeatId);
+                                    }
+                                    break;
+                                }
                             default:
                                 break;
                         }
@@ -281,7 +301,7 @@ namespace Moderator_Server.Backend
                 catch(Exception ex)
                 {
                     Debug.WriteLine("Error in ReceiveLoop "+ ex);
-                    TradeServer.logger.WriteError("Error in Receiving loop "+ex.Message);
+                  //  TradeServer.logger.WriteError("Error in Receiving loop "+ex.Message);
                     Program.Gui.updateServerStatus();
                     StopServer();
                     break;
@@ -289,7 +309,9 @@ namespace Moderator_Server.Backend
                 
             }
             Program.Gui.updateServerStatus();
+            Program.Gui.tradeServer.serverController.UpdateLogedOutNeatID(userId, 0);
+
         }
-        
+
     }
 }

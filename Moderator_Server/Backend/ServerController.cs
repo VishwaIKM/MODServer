@@ -4,16 +4,32 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Collections.Concurrent;
+using System.Data.Common;
+using System.Threading;
 
 namespace Moderator_Server.Backend
 {
+    public struct UserDtStruct
+    {
+        public int UserID;
+        public int NeatID;
+        public string UserName;
+        public Boolean Status;
+    }
     public class ServerController
     {
-        private Dictionary<int, Server> Servers;
+        private ConcurrentDictionary<int, Server> Servers;
+        public ConcurrentDictionary<int, UserDtStruct> dicNeatIDDetails = new ConcurrentDictionary<int, UserDtStruct>();
 
+        public bool ReConnect = true;
+
+        public Thread thReconnect;
+
+        private readonly object lock1 = new object();
         public ServerController()
         {
-            Servers = new Dictionary<int, Server>();
+            Servers = new ConcurrentDictionary<int, Server>();
         }
 
         public void LoadServerDetails(string path)
@@ -50,13 +66,18 @@ namespace Moderator_Server.Backend
                             if (!Servers.ContainsKey(userId))
                             {
                                 Server srvr = new Server() { ipAddress = ip, port = port, userId = userId, serverName = mod, passWord = passWord,clientVersion=clientVersion };
-                                this.Servers.Add(userId, srvr);
+                                this.Servers.TryAdd(userId, srvr);
                             }
                         }
                     }
                     TradeServer.logger.WriteLine("Moderator Detils Loaded");
                     sr.Close();
                     fs.Close();
+                    if (thReconnect == null || !thReconnect.IsAlive)
+                    {
+                        thReconnect = new Thread(ConnectToModerator);
+                        thReconnect.Start();
+                    }
 
                 }
                 else
@@ -72,6 +93,36 @@ namespace Moderator_Server.Backend
                
         }
 
+        public void ConnectToModerator()
+        {
+            while(ReConnect)
+            {
+                try
+                {
+                    bool isRequiedToUpdateGui = false;
+                    foreach (int userId in Servers.Keys.ToArray())
+                    {
+                        var server = Servers[userId];
+                        if (!server.Connected)
+                        {
+                            if (server.Connect())
+                            {
+                                isRequiedToUpdateGui = true;
+                            }
+                        }
+                    }
+                    if (isRequiedToUpdateGui)
+                    {
+                        Program.Gui.updateServerStatus();
+                    }
+                    Thread.Sleep(3000);
+                }
+                catch(Exception ex)
+                {
+                    TradeServer.logger.WriteError(ex.ToString());
+                }
+            }
+        }
         public bool ConnectAll()
         {
             foreach (var server in this.Servers.Keys)
@@ -97,6 +148,15 @@ namespace Moderator_Server.Backend
 
         public void DisconnectAllServer()
         {
+            try
+            {
+                ReConnect = false;
+                if (thReconnect != null && thReconnect.IsAlive)
+                {
+                    thReconnect.Abort();
+                }
+            }
+            catch { }
             foreach (var id in this.Servers.Keys)
             {
                 DisconnectServer(id);
@@ -121,6 +181,40 @@ namespace Moderator_Server.Backend
             {
                 TradeServer.logger.WriteLine("Server Id did not Match With strategy");
                 return false;
+            }
+        }
+
+        public void UpdateLogedInNeatID(int useriD,int neatID)
+        {
+            lock (lock1)
+            {
+                UserDtStruct userDt = new UserDtStruct() { NeatID = neatID, UserID = useriD, Status = true,UserName=Program.Gui.tradeServer.ctclDataBase.GetUserName(neatID) };
+                if (!dicNeatIDDetails.ContainsKey(neatID))
+                {
+                    dicNeatIDDetails.TryAdd(neatID, userDt);
+                }
+                else
+                {
+                    dicNeatIDDetails[neatID] = userDt;
+                }
+                Program.Gui.UpdateNeatDetails(dicNeatIDDetails);
+            }
+        }
+
+        public void UpdateLogedOutNeatID(int userID,int neatID)
+        {
+            lock (lock1)
+            {
+                foreach (int neat in dicNeatIDDetails.Keys.ToArray())
+                {
+                    var data = dicNeatIDDetails[neat];
+                    if (userID == data.UserID)
+                    {
+                        data.Status = false;
+                        dicNeatIDDetails[neat] = data;
+                    }
+                }
+                Program.Gui.UpdateNeatDetails(dicNeatIDDetails);
             }
         }
     }
