@@ -283,7 +283,7 @@ namespace Moderator_Server.Backend
                                     if(Receive(ref ReceivingBuffer,4))
                                     {
                                         int NeatId = BitConverter.ToInt32(ReceivingBuffer, 0);
-                                        Program.Gui.tradeServer.serverController.UpdateLogedInNeatID(userId, NeatId);
+                                        Program.Gui.tradeServer.serverController.UpdateLogedInNeatID(userId, NeatId, serverName);
                                     }
                                     break;
                                 }

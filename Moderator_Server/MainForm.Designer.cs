@@ -164,6 +164,7 @@
             this.lvUserDetails.Size = new System.Drawing.Size(800, 491);
             this.lvUserDetails.TabIndex = 1;
             this.lvUserDetails.UseCompatibleStateImageBehavior = false;
+            this.lvUserDetails.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lvUserDetails_MouseDown);
             // 
             // tabPage1
             // 

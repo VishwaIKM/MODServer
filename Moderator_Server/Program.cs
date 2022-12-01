@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -19,7 +20,13 @@ namespace Moderator_Server
         [STAThread]
         static void Main()
         {
-            TraceListener listener = new DelimitedListTraceListener($"debugfile_{DateTime.Now.ToString("ddMMMyyyy")}.txt");
+
+            string DebugFilePath = Application.StartupPath + "\\DebugFile\\";
+            if(!Directory.Exists(DebugFilePath))
+            {
+                Directory.CreateDirectory(DebugFilePath);
+            }
+            TraceListener listener = new DelimitedListTraceListener(DebugFilePath+$"\\debugfile_{DateTime.Now.ToString("ddMMMyyyy")}.txt");
             Debug.Listeners.Add(listener);
             Debug.WriteLine("***********************DEBUG*************************");
             Debug.AutoFlush = true;

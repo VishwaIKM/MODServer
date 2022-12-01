@@ -45,10 +45,15 @@ namespace Moderator_Server
             lvServerDetail.MultiSelect = false;
             // lvServerDetail.GridLines.
 
-            lvUserDetails.Columns.Add("Neat ID", 100);
-            lvUserDetails.Columns.Add("User ID", 100);
-            lvUserDetails.Columns.Add("User Name", 250);
-            lvUserDetails.Columns.Add("Status", 200);
+            lvUserDetails.Columns.Add("Neat ID", 65);
+            lvUserDetails.Columns.Add("User ID", 65);
+            lvUserDetails.Columns.Add("User Name", 245);
+            lvUserDetails.Columns.Add("Status", 110);
+            lvUserDetails.Columns.Add("CST", 75);
+            lvUserDetails.Columns.Add("NNF  Code", 110);
+            lvUserDetails.Columns.Add("Login ID", 65);
+            lvUserDetails.Columns.Add("Server Name", 120);
+
 
             lvUserDetails.View = View.Details;
 
@@ -513,6 +518,10 @@ namespace Moderator_Server
                         item.SubItems.Add(dt.UserID.ToString());
                         item.SubItems.Add(dt.UserName);
                         item.SubItems.Add(st);
+                        item.SubItems.Add(dt.dateTime.ToString("HH:mm:ss"));
+                        item.SubItems.Add(dt.CtclID);
+                        item.SubItems.Add(dt.LoginID);
+                        item.SubItems.Add(dt.ServerName);
                         lvUserDetails.Items.Insert(0, item);
                     }
                 }
@@ -524,6 +533,24 @@ namespace Moderator_Server
 
         }
 
-
+        private void lvUserDetails_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                // if (lvUserDetails.FocusedItem.Bounds.Contains(e.Location))
+                {
+                    ContextMenuStrip ContextMenu = new ContextMenuStrip();
+                    ToolStripMenuItem mnuUserDetails = new ToolStripMenuItem("Show/Hide Column");
+                    mnuUserDetails.Click += UserDetails_Click;
+                    ContextMenu.Items.Add(mnuUserDetails);
+                    lvUserDetails.ContextMenuStrip = ContextMenu;
+                }
+            }
+        }
+        private void UserDetails_Click(object sender, EventArgs e)
+        {
+            Setting setting = new Setting(lvUserDetails,this.Top+lvUserDetails.Top,this.Left+lvUserDetails.Left);
+            setting.ShowDialog();
+        }
     }
 }

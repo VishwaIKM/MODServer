@@ -8,9 +8,15 @@ using System.Threading.Tasks;
 
 namespace Moderator_Server
 {
+    public struct CtclDetails
+    {
+        public string UserName;
+        public string CtclID;
+        public string LoginID;
+    }
     public class CtclDataBase
     {
-        ConcurrentDictionary<int, string> dicCtclDB = new ConcurrentDictionary<int, string>();
+        ConcurrentDictionary<int, CtclDetails> dicCtclDB = new ConcurrentDictionary<int, CtclDetails>();
         string path = "";
         public CtclDataBase(string path)
         {
@@ -29,13 +35,16 @@ namespace Moderator_Server
                         string nt = data[2].Replace('"',' ');
                         int neat = Convert.ToInt32(nt);
                         string userName = data[4];
+                        string ctctID= data[3].Replace('"', ' ');
+                        string loginID = data[0].Replace('"', ' ');
+                        CtclDetails ct = new CtclDetails() { UserName = userName, CtclID = ctctID.Trim(),LoginID=loginID.Trim() };
                         if (!dicCtclDB.ContainsKey(neat))
                         {
-                            dicCtclDB.TryAdd(neat, userName);
+                            dicCtclDB.TryAdd(neat, ct);
                         }
                         else
                         {
-                            dicCtclDB[neat] = userName;
+                            dicCtclDB[neat] = ct;
                         }
                     }
                 }
@@ -54,7 +63,23 @@ namespace Moderator_Server
         {
             if(dicCtclDB.ContainsKey(neat))
             {
-                return dicCtclDB[neat];
+                return dicCtclDB[neat].UserName;
+            }
+            return "Not Available";
+        }
+        public string GetCtclID(int neat)
+        {
+            if (dicCtclDB.ContainsKey(neat))
+            {
+                return dicCtclDB[neat].CtclID;
+            }
+            return "Not Available";
+        }
+        public string GetLoginID(int neat)
+        {
+            if (dicCtclDB.ContainsKey(neat))
+            {
+                return dicCtclDB[neat].LoginID;
             }
             return "Not Available";
         }

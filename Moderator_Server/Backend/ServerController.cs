@@ -16,6 +16,10 @@ namespace Moderator_Server.Backend
         public int NeatID;
         public string UserName;
         public Boolean Status;
+        public DateTime dateTime;
+        public string ServerName;
+        public string CtclID;
+        public string LoginID;
     }
     public class ServerController
     {
@@ -184,11 +188,11 @@ namespace Moderator_Server.Backend
             }
         }
 
-        public void UpdateLogedInNeatID(int useriD,int neatID)
+        public void UpdateLogedInNeatID(int useriD,int neatID,string serverName)
         {
             lock (lock1)
             {
-                UserDtStruct userDt = new UserDtStruct() { NeatID = neatID, UserID = useriD, Status = true,UserName=Program.Gui.tradeServer.ctclDataBase.GetUserName(neatID) };
+                UserDtStruct userDt = new UserDtStruct() { NeatID = neatID, UserID = useriD, Status = true,UserName=Program.Gui.tradeServer.ctclDataBase.GetUserName(neatID),dateTime=DateTime.Now,ServerName=serverName,CtclID= Program.Gui.tradeServer.ctclDataBase.GetCtclID(neatID),LoginID= Program.Gui.tradeServer.ctclDataBase.GetLoginID(neatID) };
                 if (!dicNeatIDDetails.ContainsKey(neatID))
                 {
                     dicNeatIDDetails.TryAdd(neatID, userDt);
