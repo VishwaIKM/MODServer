@@ -34,7 +34,7 @@ namespace Moderator_Server
             foreach (ColumnHeader col in userDt.Columns)
             {
                 string colName = col.Text;
-                if (colName == "User ID"|| colName== "Server Name"|| colName== "CST")
+                if (colName == "User ID"|| colName== "Server Name"|| colName== "CST" || colName == "LTT")
                 {
                     CheckBox chk = new CheckBox();
                     chk.Text = colName;
@@ -51,7 +51,7 @@ namespace Moderator_Server
                         {
                             if (colm.Text == "User ID")
                             {
-                                userDt.Columns[index].Width = 80;
+                                userDt.Columns[index].Width = 65;
                             }
                             if (colm.Text == "Server Name")
                             {
@@ -59,7 +59,11 @@ namespace Moderator_Server
                             }
                             if(colm.Text== "CST")
                             {
-                                userDt.Columns[index].Width = 80;
+                                userDt.Columns[index].Width = 75;
+                            }
+                            if( colm.Text=="LTT")
+                            {
+                                userDt.Columns[index].Width = 75;
                             }
                         }
                         else

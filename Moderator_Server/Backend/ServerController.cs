@@ -20,11 +20,13 @@ namespace Moderator_Server.Backend
         public string ServerName;
         public string CtclID;
         public string LoginID;
+        public DateTime LastTradedTime;
     }
     public class ServerController
     {
         private ConcurrentDictionary<int, Server> Servers;
         public ConcurrentDictionary<int, UserDtStruct> dicNeatIDDetails = new ConcurrentDictionary<int, UserDtStruct>();
+        public ConcurrentDictionary<int, DateTime> dicNeatIDLTT = new ConcurrentDictionary<int, DateTime>();
 
         public bool ReConnect = true;
 
@@ -202,6 +204,41 @@ namespace Moderator_Server.Backend
                     dicNeatIDDetails[neatID] = userDt;
                 }
                 Program.Gui.UpdateNeatDetails(dicNeatIDDetails);
+            }
+        }
+        public void UpdateNeatLastTradedTime(int neatID,DateTime LTT)
+        {
+            try
+            {
+                if (dicNeatIDDetails.ContainsKey(neatID))
+                {
+                    if (!dicNeatIDLTT.ContainsKey(neatID))
+                    {
+                        dicNeatIDLTT.TryAdd(neatID, LTT);
+                    }
+                    else
+                    {
+                        dicNeatIDLTT[neatID] = LTT;
+                    }
+                }
+            }
+            catch { }
+        }
+        public void UpdateNeatLTTAfterATime()
+        {
+            lock (lock1)
+            {
+                try
+                {
+                    foreach (int neatID in dicNeatIDLTT.Keys.ToArray())
+                    {
+                        var data = dicNeatIDDetails[(int)neatID];
+                        data.LastTradedTime = dicNeatIDLTT[neatID];
+                        dicNeatIDDetails[neatID] = data;
+                    }
+                    Program.Gui.UpdateNeatDetails(dicNeatIDDetails);
+                }
+                catch { }
             }
         }
 

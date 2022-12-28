@@ -50,7 +50,7 @@ namespace Moderator_Server
                 }
                 else
                 {
-                    TradeServer.logger.WriteError("Ctcl DataBase file is not existed");
+                    TradeServer.logger.WriteError("Ctcl DataBase file is not existed" +path);
                 }
             }
             catch(Exception ex)

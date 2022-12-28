@@ -317,8 +317,11 @@ namespace Moderator_Server
                                 {
                                     logger.WriteLine("Token : " + resp.token);
                                 }
+                              
                                 string tradeLog = $"{resp.tradeId},{resp.userCode.Trim()},{resp.neatId},{resp.ordNo.ToString()},{script},{instrument},{(strike / 100.0).ToString()},{option},{expr},{resp.trdQnty},{(resp.trdPrice).ToString("0.00")},{Constant.Flag.GetDateFromSeconds(resp.tradeTime).ToString("M-dd-yyyy hh:mm:ss tt")},{resp.tradeId},{resp.token},{resp.StgId},{resp.pfId},{resp.stgType},{resp.pfBuySell},{resp.legNo},{resp.ratios.Trim()},{resp.tokens.Trim()}";
                                 Program.Gui.tradeServer.ModeratorTradeWriter.WriteLine(tradeLog);
+                                serverController.UpdateNeatLastTradedTime(resp.neatId, tradeTime);
+
                             }
                         }
                     }

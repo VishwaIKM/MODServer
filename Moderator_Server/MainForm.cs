@@ -50,6 +50,7 @@ namespace Moderator_Server
             lvUserDetails.Columns.Add("User Name", 245);
             lvUserDetails.Columns.Add("Status", 110);
             lvUserDetails.Columns.Add("CST", 75);
+            lvUserDetails.Columns.Add("LTT", 75);
             lvUserDetails.Columns.Add("NNF  Code", 110);
             lvUserDetails.Columns.Add("Login ID", 65);
             lvUserDetails.Columns.Add("Server Name", 120);
@@ -72,7 +73,57 @@ namespace Moderator_Server
             string path = Constant.path.startUpPath + "\\ModeratorDetail.txt";
 
             AddServerToGui(path);
+            UserDetailsDisplaIndex();
+        }
+         
+        public void UserDetailsDisplaIndex()
+        {
+            try
+            {
+                if (File.Exists(Constant.path.IniPath))
+                {
+                    Ini ini = new Ini(Constant.path.IniPath);
+                    int i = 0;
+                    foreach (ColumnHeader col in lvUserDetails.Columns)
+                    {
+                        col.DisplayIndex = ini.Read_int("USERDETAILS", i.ToString());
+                        i++;
+                    }
+                }
+                else
+                {
+                    TradeServer.logger.WriteLine("Config file des not exists");
+                }
+            }
+            catch(Exception ex)
+            {
+                TradeServer.logger.WriteLine(ex.ToString());
+            }
+        }
 
+        public void SaveUserdetailsDisplayIndex()
+        {
+            try
+            {
+                if (File.Exists(Constant.path.IniPath))
+                {
+                    Ini ini = new Ini(Constant.path.IniPath);
+                    int i = 0;
+                    foreach (ColumnHeader col in lvUserDetails.Columns)
+                    {
+                        ini.Write("USERDETAILS", i.ToString(),col.DisplayIndex.ToString());
+                        i++;
+                    }
+                }
+                else
+                {
+                    TradeServer.logger.WriteLine("Config file des not exists");
+                }
+            }
+            catch (Exception ex)
+            {
+                TradeServer.logger.WriteLine(ex.ToString());
+            }
         }
         private void AddServerToGui(string path)
         {
@@ -125,6 +176,7 @@ namespace Moderator_Server
         {
             if (MessageBox.Show("Do you really wan't to close TradeServer??", "Alert", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
+                SaveUserdetailsDisplayIndex();
                 tradeServer.CloseAll();
               
             }
@@ -470,6 +522,8 @@ namespace Moderator_Server
             try
             {
                 ModTrade.Text = tradeServer.GetTotalTradeCount().ToString();
+
+                tradeServer.serverController.UpdateNeatLTTAfterATime();
             }
             catch { }
         }
@@ -509,7 +563,9 @@ namespace Moderator_Server
                 else
                 {
                     lvUserDetails.Items.Clear();
-                    foreach (int neat in dicNeatData.Keys.ToArray())
+                    int[] keys = dicNeatData.Keys.ToArray();
+                        Array.Sort(keys);
+                    foreach (int neat in keys)
                     {
                         UserDtStruct dt = dicNeatData[neat];
                         string st = dt.Status == true ? "Connected" : "DisConnected";
@@ -519,6 +575,7 @@ namespace Moderator_Server
                         item.SubItems.Add(dt.UserName);
                         item.SubItems.Add(st);
                         item.SubItems.Add(dt.dateTime.ToString("HH:mm:ss"));
+                        item.SubItems.Add(dt.LastTradedTime.ToString("HH:mm:ss"));
                         item.SubItems.Add(dt.CtclID);
                         item.SubItems.Add(dt.LoginID);
                         item.SubItems.Add(dt.ServerName);

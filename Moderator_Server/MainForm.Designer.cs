@@ -154,6 +154,7 @@
             // 
             // lvUserDetails
             // 
+            this.lvUserDetails.AllowColumnReorder = true;
             this.lvUserDetails.BackColor = System.Drawing.SystemColors.InactiveCaption;
             this.lvUserDetails.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvUserDetails.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
