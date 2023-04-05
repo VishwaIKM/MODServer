@@ -101,7 +101,8 @@ namespace Moderator_Server.Backend
 
         public void ConnectToModerator()
         {
-            while(ReConnect)
+            Thread.Sleep(10000);
+            while (ReConnect)
             {
                 try
                 {

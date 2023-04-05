@@ -42,11 +42,11 @@ namespace Moderator_Server
                 while (!rfl.EndOfStream)
                 {
                     row = rfl.ReadLine();
-                    string[] cols = row.Split('|');
+                    string[] cols = row.Split(',');
                     if (cols[3] == "NIFTY")
                     {
                         dt = Convert.ToDateTime("1/1/1980 12:00:00 AM");//.Add(diff);
-                        dt = dt.AddSeconds(Convert.ToInt32(cols[6]));//cols[28]));//
+                        dt = dt.AddSeconds(Convert.ToInt32(cols[4]));//cols[28]));//
 
                         if (!DcExpiry.ContainsKey(cols[3]))
                         {
@@ -119,9 +119,9 @@ namespace Moderator_Server
                         {
                             DateTime dt = new DateTime();
                             string exp = "";
-                            string[] arrline = line.Split('|');
+                            string[] arrline = line.Split(',');
 
-                            if (string.IsNullOrEmpty(arrline[53]) || string.IsNullOrWhiteSpace(arrline[53]))
+                            if (string.IsNullOrEmpty(arrline[18]) || string.IsNullOrWhiteSpace(arrline[18]))
                                 continue;
 
                             int token = Convert.ToInt32(arrline[0].Trim());
@@ -131,7 +131,7 @@ namespace Moderator_Server
                             }
                             string script = arrline[3].Trim();
                             dt = Convert.ToDateTime("1/1/1980 12:00:00 AM");//.Add(diff);
-                            dt = dt.AddSeconds(Convert.ToInt32(arrline[6]));//cols[28]));//
+                            dt = dt.AddSeconds(Convert.ToInt32(arrline[4]));//cols[28]));//
                             exp = dt.ToString("dd-MMM-yy").ToUpper();
                             string expr = dt.ToString("yyMMM").ToUpper();
                             //string exprs = dt.ToString("ddMMMyyyy").ToUpper();//
@@ -141,11 +141,11 @@ namespace Moderator_Server
 
                             int tok = token;
 
-                            int strike = Convert.ToInt32(arrline[7].Trim());
-                            uint lotSize = Convert.ToUInt32(arrline[30].Trim());
+                            int strike = Convert.ToInt32(arrline[5].Trim());
+                            uint lotSize = Convert.ToUInt32(arrline[8].Trim());
 
-                            int freezeQnty = (int)Convert.ToDouble(arrline[34]);
-                            string tradingSymbol = arrline[53];
+                            int freezeQnty = (int)Convert.ToDouble(arrline[40]);
+                            string tradingSymbol = arrline[18];
 
                             if (niftyFut == tradingSymbol)
                                 _niftyFutToken = token;
@@ -153,11 +153,11 @@ namespace Moderator_Server
                             //    BankNiftyFutToken = token;
 
                             Constant.OptionType otp = 0;
-                            if (arrline[8].Trim() == Constant.OptionType.CE.ToString())
+                            if (arrline[6].Trim() == Constant.OptionType.CE.ToString())
                                 otp = Constant.OptionType.CE;
-                            if (arrline[8].Trim() == Constant.OptionType.PE.ToString())
+                            if (arrline[6].Trim() == Constant.OptionType.PE.ToString())
                                 otp = Constant.OptionType.PE;
-                            if (arrline[8].Trim() == Constant.OptionType.XX.ToString())
+                            if (arrline[6].Trim() == Constant.OptionType.XX.ToString())
                             {
                                 otp = Constant.OptionType.XX;
                                 strike = 0;
@@ -175,19 +175,19 @@ namespace Moderator_Server
                                 }
                             }
 
-                            int tickSize = Convert.ToInt32(arrline[32]);
+                            int tickSize = Convert.ToInt32(arrline[10]);
 
                             cntrInfo.token = token;
                             cntrInfo.script = script;
                             cntrInfo.strike = strike;
                             cntrInfo.lotSize = lotSize;
-                            cntrInfo.exp = Convert.ToInt32(arrline[6]);
+                            cntrInfo.exp = Convert.ToInt32(arrline[4]);
                             cntrInfo.tradingSymbol = tradingSymbol;
                             cntrInfo.tickSize = tickSize;
                             cntrInfo.freezeQty = freezeQnty;
                             cntrInfo.option = otp;
                             cntrInfo.instrument = inst;
-                            cntrInfo.lastClosingPrice = Convert.ToInt32(arrline[arrline.Length - 2].Trim());
+                            cntrInfo.lastClosingPrice = Convert.ToInt32(arrline[20].Trim());
                             cntrInfo.tickSize = tickSize;
                             if (!SecurityDataBase.ContainsKey(token))
                                 SecurityDataBase.Add(token, cntrInfo);

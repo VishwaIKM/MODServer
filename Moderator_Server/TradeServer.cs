@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Moderator_Server
 {
@@ -36,6 +37,18 @@ namespace Moderator_Server
         public ClientManager.Manager clntManager;
         public CtclDataBase ctclDataBase;
 
+        string GetLatestFile(string Dir, string file)
+        {
+            try
+            {
+                string DefultContractPath = file + "_ddMMyyyy.csv";
+                DirectoryInfo info = new DirectoryInfo(Dir);
+                FileInfo[] filePaths = info.GetFiles().OrderByDescending(p => p.CreationTime).Where(x => x.Name.Contains(file)).ToArray();
+                return filePaths.Count() <= 0 ? DefultContractPath : filePaths[0].Name;
+            }
+            catch (Exception ex) { logger.WriteLine(ex.ToString()); return ""; }
+        }
+
         public void LoadTradeServer()
         {   
             string LogPath = Constant.path.startUpPath + "\\Logs";
@@ -61,10 +74,11 @@ namespace Moderator_Server
             }
             LoadTradeServerdetails();
             contract = new Contract();
-            string pathcntr = ContractPath + "\\contract.txt";
+
+            string pathcntr = ContractPath + "\\" + GetLatestFile(ContractPath, "NSE_FO_contract");
             if (!contract.CheckContractFile(pathcntr))
             {
-                MessageBox.Show("Update Contract.txt");
+                MessageBox.Show("Update Contract.csv");
                 Environment.Exit(0);
             }
             contract.LoadTokenDeatils(pathcntr);
