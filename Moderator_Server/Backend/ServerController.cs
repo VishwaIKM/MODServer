@@ -7,6 +7,7 @@ using System.IO;
 using System.Collections.Concurrent;
 using System.Data.Common;
 using System.Threading;
+using Moderator_Server.Constant;
 
 namespace Moderator_Server.Backend
 {
@@ -120,7 +121,7 @@ namespace Moderator_Server.Backend
                     }
                     if (isRequiedToUpdateGui)
                     {
-                        Program.Gui.updateServerStatus();
+                        General.DockForm.updateServerStatus();
                     }
                     Thread.Sleep(3000);
                 }
@@ -195,7 +196,7 @@ namespace Moderator_Server.Backend
         {
             lock (lock1)
             {
-                UserDtStruct userDt = new UserDtStruct() { NeatID = neatID, UserID = useriD, Status = true,UserName=Program.Gui.tradeServer.ctclDataBase.GetUserName(neatID),dateTime=DateTime.Now,ServerName=serverName,CtclID= Program.Gui.tradeServer.ctclDataBase.GetCtclID(neatID),LoginID= Program.Gui.tradeServer.ctclDataBase.GetLoginID(neatID) };
+                UserDtStruct userDt = new UserDtStruct() { NeatID = neatID, UserID = useriD, Status = true,UserName= General.tradeServer.ctclDataBase.GetUserName(neatID),dateTime=DateTime.Now,ServerName=serverName,CtclID= General.tradeServer.ctclDataBase.GetCtclID(neatID),LoginID= General.tradeServer.ctclDataBase.GetLoginID(neatID) };
                 if (!dicNeatIDDetails.ContainsKey(neatID))
                 {
                     dicNeatIDDetails.TryAdd(neatID, userDt);
@@ -204,7 +205,7 @@ namespace Moderator_Server.Backend
                 {
                     dicNeatIDDetails[neatID] = userDt;
                 }
-                Program.Gui.UpdateNeatDetails(dicNeatIDDetails);
+                General.DockForm.UpdateNeatDetails(dicNeatIDDetails);
             }
         }
         public void UpdateNeatLastTradedTime(int neatID,DateTime LTT)
@@ -237,7 +238,7 @@ namespace Moderator_Server.Backend
                         data.LastTradedTime = dicNeatIDLTT[neatID];
                         dicNeatIDDetails[neatID] = data;
                     }
-                    Program.Gui.UpdateNeatDetails(dicNeatIDDetails);
+                   General.DockForm.UpdateNeatDetails(dicNeatIDDetails);
                 }
                 catch { }
             }
@@ -256,7 +257,7 @@ namespace Moderator_Server.Backend
                         dicNeatIDDetails[neat] = data;
                     }
                 }
-                Program.Gui.UpdateNeatDetails(dicNeatIDDetails);
+                General.DockForm.UpdateNeatDetails(dicNeatIDDetails);
             }
         }
     }

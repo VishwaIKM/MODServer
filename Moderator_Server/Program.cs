@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Moderator_Server.GUI;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -13,7 +14,7 @@ namespace Moderator_Server
 {
     static class Program
     {
-        public static MainForm Gui;
+       
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -48,7 +49,7 @@ namespace Moderator_Server
                     {
                         Application.EnableVisualStyles();
                         Application.SetCompatibleTextRenderingDefault(false);
-                        Application.Run(new MainForm());
+                        Application.Run(new DocKForm());
                     }
                 }
             }

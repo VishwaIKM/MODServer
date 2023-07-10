@@ -120,7 +120,7 @@
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(814, 54);
+            this.groupBox1.Size = new System.Drawing.Size(1417, 54);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Moderator details";
@@ -148,7 +148,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 25);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(806, 497);
+            this.tabPage2.Size = new System.Drawing.Size(1409, 608);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "UserDetails";
             // 
@@ -162,7 +162,7 @@
             this.lvUserDetails.HideSelection = false;
             this.lvUserDetails.Location = new System.Drawing.Point(3, 3);
             this.lvUserDetails.Name = "lvUserDetails";
-            this.lvUserDetails.Size = new System.Drawing.Size(800, 491);
+            this.lvUserDetails.Size = new System.Drawing.Size(1403, 602);
             this.lvUserDetails.TabIndex = 1;
             this.lvUserDetails.UseCompatibleStateImageBehavior = false;
             this.lvUserDetails.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lvUserDetails_MouseDown);
@@ -177,7 +177,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(806, 497);
+            this.tabPage1.Size = new System.Drawing.Size(1409, 608);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Main";
             // 
@@ -195,8 +195,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.lvLogs);
-            this.splitContainer1.Size = new System.Drawing.Size(435, 491);
-            this.splitContainer1.SplitterDistance = 196;
+            this.splitContainer1.Size = new System.Drawing.Size(1038, 602);
+            this.splitContainer1.SplitterDistance = 240;
             this.splitContainer1.TabIndex = 5;
             // 
             // groupBox2
@@ -206,7 +206,7 @@
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox2.Location = new System.Drawing.Point(0, 0);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(435, 196);
+            this.groupBox2.Size = new System.Drawing.Size(1038, 240);
             this.groupBox2.TabIndex = 0;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Client_Status";
@@ -220,7 +220,7 @@
             this.lvclientdetails.HideSelection = false;
             this.lvclientdetails.Location = new System.Drawing.Point(3, 22);
             this.lvclientdetails.Name = "lvclientdetails";
-            this.lvclientdetails.Size = new System.Drawing.Size(429, 171);
+            this.lvclientdetails.Size = new System.Drawing.Size(1032, 215);
             this.lvclientdetails.TabIndex = 0;
             this.lvclientdetails.UseCompatibleStateImageBehavior = false;
             this.lvclientdetails.View = System.Windows.Forms.View.Details;
@@ -233,7 +233,7 @@
             this.lvLogs.HideSelection = false;
             this.lvLogs.Location = new System.Drawing.Point(0, 0);
             this.lvLogs.Name = "lvLogs";
-            this.lvLogs.Size = new System.Drawing.Size(435, 291);
+            this.lvLogs.Size = new System.Drawing.Size(1038, 358);
             this.lvLogs.TabIndex = 0;
             this.lvLogs.UseCompatibleStateImageBehavior = false;
             // 
@@ -243,7 +243,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(365, 491);
+            this.panel1.Size = new System.Drawing.Size(365, 602);
             this.panel1.TabIndex = 2;
             // 
             // lvServerDetail
@@ -254,7 +254,7 @@
             this.lvServerDetail.HideSelection = false;
             this.lvServerDetail.Location = new System.Drawing.Point(0, 0);
             this.lvServerDetail.Name = "lvServerDetail";
-            this.lvServerDetail.Size = new System.Drawing.Size(365, 491);
+            this.lvServerDetail.Size = new System.Drawing.Size(365, 602);
             this.lvServerDetail.TabIndex = 0;
             this.lvServerDetail.UseCompatibleStateImageBehavior = false;
             this.lvServerDetail.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvServerDetail_MouseDoubleClick_1);
@@ -268,7 +268,7 @@
             this.tabControl1.Location = new System.Drawing.Point(0, 54);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(814, 526);
+            this.tabControl1.Size = new System.Drawing.Size(1417, 637);
             this.tabControl1.TabIndex = 1;
             // 
             // MainForm
@@ -276,7 +276,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.InactiveCaption;
-            this.ClientSize = new System.Drawing.Size(814, 580);
+            this.ClientSize = new System.Drawing.Size(1417, 691);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.groupBox1);
             this.Name = "MainForm";

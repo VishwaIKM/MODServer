@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Moderator_Server</RootNamespace>
     <AssemblyName>Moderator_Server</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -34,7 +34,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,6 +45,10 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WeifenLuo.WinFormsUI.Docking, Version=3.0.4.0, Culture=neutral, PublicKeyToken=5cded1a1a0a7b481, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Backend\Server.cs" />
@@ -53,35 +59,96 @@
     <Compile Include="ClientManager\SocketObject.cs" />
     <Compile Include="Constant\Enum.cs" />
     <Compile Include="Constant\Flag.cs" />
+    <Compile Include="Constant\General.cs" />
     <Compile Include="Constant\Path.cs" />
-    <Compile Include="Contract.cs" />
-    <Compile Include="CtclDataBase.cs" />
-    <Compile Include="Ini.cs" />
-    <Compile Include="LoggingModule.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="GUI\ClientDetailsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="GUI\ClientDetailsForm.Designer.cs">
+      <DependentUpon>ClientDetailsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\ClientMargin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\ClientMargin.Designer.cs">
+      <DependentUpon>ClientMargin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\LogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\LogForm.Designer.cs">
+      <DependentUpon>LogForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\ServerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\ServerForm.Designer.cs">
+      <DependentUpon>ServerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\Setting.Designer.cs">
+      <DependentUpon>Setting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\UserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\UserForm.Designer.cs">
+      <DependentUpon>UserForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Contract.cs" />
+    <Compile Include="Resources\CtclDataBase.cs" />
+    <Compile Include="GUI\DocKForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\DocKForm.Designer.cs">
+      <DependentUpon>DocKForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Ini.cs" />
+    <Compile Include="Resources\LoggingModule.cs" />
+    <Compile Include="GUI\GUI BACKUP\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\GUI BACKUP\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PacketStructure.cs" />
+    <Compile Include="Resources\PacketStructure.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Setting.cs">
+    <Compile Include="Resources\DockManager.cs" />
+    <Compile Include="GUI\Setting.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Setting.Designer.cs" />
-    <Compile Include="TradeServer.cs" />
-    <Compile Include="TradeWriter.cs" />
-    <Compile Include="UserDetails.cs">
+    <Compile Include="Resources\TradeServer.cs" />
+    <Compile Include="Resources\TradeWriter.cs" />
+    <Compile Include="GUI\GUI BACKUP\UserDetails.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UserDetails.Designer.cs">
+    <Compile Include="GUI\GUI BACKUP\UserDetails.Designer.cs">
       <DependentUpon>UserDetails.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="GUI\ClientDetailsForm.resx">
+      <DependentUpon>ClientDetailsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\ClientMargin.resx">
+      <DependentUpon>ClientMargin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\DocKForm.resx">
+      <DependentUpon>DocKForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\LogForm.resx">
+      <DependentUpon>LogForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\GUI BACKUP\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\ServerForm.resx">
+      <DependentUpon>ServerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\Setting.resx">
+      <DependentUpon>Setting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\UserForm.resx">
+      <DependentUpon>UserForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -93,8 +160,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Setting.resx" />
-    <EmbeddedResource Include="UserDetails.resx">
+    <EmbeddedResource Include="GUI\GUI BACKUP\UserDetails.resx">
       <DependentUpon>UserDetails.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
@@ -110,6 +176,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

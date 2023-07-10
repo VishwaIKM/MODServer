@@ -5,6 +5,8 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
+using System.CodeDom.Compiler;
+using Moderator_Server.Constant;
 
 namespace Moderator_Server
 {
@@ -78,7 +80,7 @@ namespace Moderator_Server
             string pathcntr = ContractPath + "\\" + GetLatestFile(ContractPath, "NSE_FO_contract");
             if (!contract.CheckContractFile(pathcntr))
             {
-                MessageBox.Show("Update Contract.csv");
+                MessageBox.Show("Please Update The Contract File. Click Ok to Exit!");
                 Environment.Exit(0);
             }
             contract.LoadTokenDeatils(pathcntr);
@@ -205,6 +207,7 @@ namespace Moderator_Server
                                 {
                                     HedgerTradeResponse resp = new HedgerTradeResponse();
                                     resp.GetData(data);
+                                    logger.WriteError("Test: Recived TradeTime: " + resp.tradeTime +" neatID "+resp.neatId+ " Byte Data " + data[30] + "," + data[31] + "," + data[32] + "," + data[34]);
                                     if (!TradeIdList.Contains(resp.tradeId))
                                     {
                                         TradeIdList.Add(resp.tradeId);
@@ -333,7 +336,7 @@ namespace Moderator_Server
                                 }
                               
                                 string tradeLog = $"{resp.tradeId},{resp.userCode.Trim()},{resp.neatId},{resp.ordNo.ToString()},{script},{instrument},{(strike / 100.0).ToString()},{option},{expr},{resp.trdQnty},{(resp.trdPrice).ToString("0.00")},{Constant.Flag.GetDateFromSeconds(resp.tradeTime).ToString("M-dd-yyyy hh:mm:ss tt")},{resp.tradeId},{resp.token},{resp.StgId},{resp.pfId},{resp.stgType},{resp.pfBuySell},{resp.legNo},{resp.ratios.Trim()},{resp.tokens.Trim()}";
-                                Program.Gui.tradeServer.ModeratorTradeWriter.WriteLine(tradeLog);
+                                General.tradeServer.ModeratorTradeWriter.WriteLine(tradeLog);
                                 serverController.UpdateNeatLastTradedTime(resp.neatId, tradeTime);
 
                             }

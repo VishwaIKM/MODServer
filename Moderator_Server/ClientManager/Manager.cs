@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Globalization;
 using System.Collections.Concurrent;
+using Moderator_Server.Constant;
 
 namespace Moderator_Server.ClientManager
 {
@@ -57,7 +58,7 @@ namespace Moderator_Server.ClientManager
                             }
                         }
                         TradeServer.logger.WriteLine("Client Details Loaded");
-                        Program.Gui.loadclientdetails();
+                        General.ClientDetailsForm.loadclientdetails();
                     }
                     clientSessionChecker = new System.Threading.Thread(CheckConnection);
                     clientSessionChecker.Start();
@@ -297,7 +298,7 @@ namespace Moderator_Server.ClientManager
                     #endregion
 
                     client.InitiateReceiveLoop();
-                    Program.Gui.UpdatestatusServercon();
+                    General.ClientDetailsForm.UpdatestatusServercon();
 
                     //DisposePrevious();
                     //SendPrevious = new Thread(() => SendPreviousTrades(client.ClientName,detail.userId));
@@ -459,7 +460,7 @@ namespace Moderator_Server.ClientManager
             try
             {
                 string tmpPath = Application.StartupPath + "\\" + clientname+"_"+userid + "tmp.txt";
-                File.Copy(Program.Gui.tradeServer.ModeratorTradeFile, tmpPath, true);
+                File.Copy(General.tradeServer.ModeratorTradeFile, tmpPath, true);
                 Thread.Sleep(1000); //NeatID List is updating on Receiving loop(neat id data  received from hedger)
                 if (clientname == Constant.Flag.TradeMatch || clientname == Constant.Flag.Hedger)
                 {

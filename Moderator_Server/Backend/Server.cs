@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Net;
+using Moderator_Server.Constant;
 
 namespace Moderator_Server.Backend
 {
@@ -36,7 +37,7 @@ namespace Moderator_Server.Backend
                 instance.Client.Close();
                 instance = null;
                 _IsConnected = false;
-                Program.Gui.updateServerStatus();
+                General.DockForm.updateServerStatus();
                 TradeServer.logger.WriteLine(userId + "Logged Out");
             }
 
@@ -200,8 +201,8 @@ namespace Moderator_Server.Backend
             }
             catch
             {
-                Program.Gui.updateServerStatus();
-                Program.Gui.tradeServer.serverController.UpdateLogedOutNeatID(userId, 0);
+                General.DockForm.updateServerStatus();
+                General.tradeServer.serverController.UpdateLogedOutNeatID(userId, 0);
                 TradeServer.logger.WriteLine(userId + " " + serverName+ "Logged Out");
             }
 
@@ -274,7 +275,7 @@ namespace Moderator_Server.Backend
                                 {
                                     if (Receive(ref ReceivingBuffer, 102))
                                     {
-                                        Program.Gui.tradeServer.AddTradeToModeratorQueue(ReceivingBuffer);
+                                        General.tradeServer.AddTradeToModeratorQueue(ReceivingBuffer);
                                     }
                                     break;
                                 }
@@ -283,7 +284,7 @@ namespace Moderator_Server.Backend
                                     if(Receive(ref ReceivingBuffer,4))
                                     {
                                         int NeatId = BitConverter.ToInt32(ReceivingBuffer, 0);
-                                        Program.Gui.tradeServer.serverController.UpdateLogedInNeatID(userId, NeatId, serverName);
+                                        General.tradeServer.serverController.UpdateLogedInNeatID(userId, NeatId, serverName);
                                     }
                                     break;
                                 }
@@ -302,14 +303,14 @@ namespace Moderator_Server.Backend
                 {
                     Debug.WriteLine("Error in ReceiveLoop "+ ex);
                   //  TradeServer.logger.WriteError("Error in Receiving loop "+ex.Message);
-                    Program.Gui.updateServerStatus();
+                    General.DockForm.updateServerStatus();
                     StopServer();
                     break;
                 }
                 
             }
-            Program.Gui.updateServerStatus();
-            Program.Gui.tradeServer.serverController.UpdateLogedOutNeatID(userId, 0);
+            General.DockForm.updateServerStatus();
+            General.tradeServer.serverController.UpdateLogedOutNeatID(userId, 0);
 
         }
 

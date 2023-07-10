@@ -3,6 +3,7 @@ using System.Threading;
 using System.Net.Sockets;
 using System.Text;
 using System.Collections.Generic;
+using Moderator_Server.Constant;
 
 namespace Moderator_Server.ClientManager
 {
@@ -67,7 +68,7 @@ namespace Moderator_Server.ClientManager
             }
             catch(Exception ex)
             {
-                Program.Gui.UpdatestatusServercon();
+                General.ClientDetailsForm.UpdatestatusServercon();
                 //OnClientDisconnected();
                // TradeServer.logger.WriteLine(ClientID + " " + ClientName + $"  Disconnected. Reason:{ex.Message} ");
             }
@@ -118,10 +119,10 @@ namespace Moderator_Server.ClientManager
 
 
                             TradeMatchResponse match = new TradeMatchResponse { NeatId = resp.neatId, Time = resp.tradeTime, Token = resp.token, TradePrice = resp.tradePrice, TradeQnty = resp.tradeQnty,tradeId=resp.tradeid };
-                            Program.Gui.tradeServer.clntManager.SendTradesToClient(Constant.Flag.TradeMatch, match.GetBytes());
+                            General.tradeServer.clntManager.SendTradesToClient(Constant.Flag.TradeMatch, match.GetBytes());
 
                             TradeManagerResponse mngr = new TradeManagerResponse { UserCode = resp.userCode, TradeTime = resp.tradeTime, Token = resp.token, TradePrice = resp.tradePrice, TradeQnty = resp.tradeQnty,Tradeid=resp.tradeid};
-                            Program.Gui.tradeServer.clntManager.SendTradesToClient(Constant.Flag.TradeManager, mngr.GetBytes());
+                            General.tradeServer.clntManager.SendTradesToClient(Constant.Flag.TradeManager, mngr.GetBytes());
 
                             break;
 
@@ -230,7 +231,7 @@ namespace Moderator_Server.ClientManager
 
         private void OnClientDisconnected(string reason = "NRML")
         {
-            Program.Gui.UpdatestatusServercon();
+            General.ClientDetailsForm.UpdatestatusServercon();
             TradeServer.logger.WriteLine(ClientID + " " + ClientName + $"  Disconnected. Reason:{reason} ");
         }
       

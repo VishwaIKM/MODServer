@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Moderator_Server.Constant;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -56,8 +57,13 @@ namespace Moderator_Server
                             break;
                     }
 
-                    if(Program.Gui != null)
-                        Program.Gui.DisplayLog(dateTime, p.Msg, p.Ltype);
+                    if(p.Msg.Contains("Test:"))
+                    {
+                        continue;
+                    }
+
+                    if(General.LogForm != null)
+                        General.LogForm.DisplayLog(dateTime, p.Msg, p.Ltype);
                 }
 
                 logWriter.Flush();

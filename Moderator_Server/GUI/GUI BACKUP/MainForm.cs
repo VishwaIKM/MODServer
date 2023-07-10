@@ -1,4 +1,5 @@
 ﻿using Moderator_Server.Backend;
+using Moderator_Server.Constant;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,9 +14,11 @@ namespace Moderator_Server
 {
     public partial class MainForm : Form
     {
+        //Done
         private Dictionary<int, ListViewItem> ServerGuiInstance;
-        public TradeServer tradeServer;
+       //done
         private readonly object lock1 = new object();
+        //done
         public MainForm()
         {
             InitializeComponent();
@@ -61,12 +64,13 @@ namespace Moderator_Server
             //groupBoxModeratorInfo.BackColor = Color.LightCyan;
             lvServerDetail.BackColor = Color.LightGray;
         }
+        //done
         private void MainForm_Load(object sender, EventArgs e)
         {
-            Program.Gui = this;
-            tradeServer = new TradeServer();
-            tradeServer.LoadTradeServer();
-            lblModeratorCredentials.Text = tradeServer.ToString();
+          
+           
+            General.tradeServer.LoadTradeServer();
+            lblModeratorCredentials.Text = General.tradeServer.ToString();
             timer1.Enabled = true;
            
             ServerGuiInstance = new Dictionary<int, ListViewItem>();
@@ -75,7 +79,7 @@ namespace Moderator_Server
             AddServerToGui(path);
             UserDetailsDisplaIndex();
         }
-         
+         //done
         public void UserDetailsDisplaIndex()
         {
             try
@@ -101,6 +105,7 @@ namespace Moderator_Server
             }
         }
 
+        //done
         public void SaveUserdetailsDisplayIndex()
         {
             try
@@ -125,6 +130,7 @@ namespace Moderator_Server
                 TradeServer.logger.WriteLine(ex.ToString());
             }
         }
+        //done
         private void AddServerToGui(string path)
         {
             try
@@ -172,12 +178,15 @@ namespace Moderator_Server
                 TradeServer.logger.WriteLine("Error in Loading Server Detail :" + ex);
             }
         }
+
+        //done
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (MessageBox.Show("Do you really wan't to close TradeServer??", "Alert", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
+                Resources.DockManager.SaveDockPanelSetting();
                 SaveUserdetailsDisplayIndex();
-                tradeServer.CloseAll();
+                General.tradeServer.CloseAll();
               
             }
             else
@@ -185,6 +194,7 @@ namespace Moderator_Server
                 e.Cancel = true;
             }
         }
+        //done
         private void btnConnect_Click(object sender, EventArgs e)
         {
             try
@@ -192,7 +202,7 @@ namespace Moderator_Server
                 btnConnect.Enabled = false;
                 btnDisconnect.Enabled = false;
 
-                if (tradeServer.serverController.ConnectAll())
+                if (General.tradeServer.serverController.ConnectAll())
                 {
                     btnConnect.Enabled = false;
                     btnDisconnect.Enabled = true;
@@ -211,6 +221,7 @@ namespace Moderator_Server
             }
             updateServerStatus();
         }
+        //done
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
             if (DialogResult.OK == MessageBox.Show("Are you really want to disconnect All Servers ", "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2))
@@ -218,16 +229,18 @@ namespace Moderator_Server
                 btnConnect.Enabled = false;
                 btnDisconnect.Enabled = false;
 
-                tradeServer.serverController.DisconnectAllServer();
+                General.tradeServer.serverController.DisconnectAllServer();
                 btnConnect.Enabled = true;
                 btnDisconnect.Enabled = false;
 
                 updateServerStatus();
             }
         }
-
+        //done
         public delegate void delWithString(DateTime stamp, string param1, Param.LogType param2);
+        //done
         public delegate void delFortradeCount(long tradeCount);
+        //done
         public void DisplayLog(DateTime stamp, string message, Param.LogType logType)
         {
             try
@@ -252,6 +265,7 @@ namespace Moderator_Server
             }
             catch(Exception ex) { TradeServer.logger.WriteLine(ex.ToString()); }
         }
+        //done
         public void UpdateTradeCount(long tradeCount)
         {
             try
@@ -268,6 +282,7 @@ namespace Moderator_Server
             }
             catch { }
         }
+        //done
         private void lvServerDetail_MouseDoubleClick_1(object sender, MouseEventArgs e)
         {
             try
@@ -278,18 +293,18 @@ namespace Moderator_Server
                 if (columnIndex > -1)
                 {
                     int serverId = int.Parse(listViewHitTestInfo.Item.SubItems[1].Text);
-                    if (tradeServer.serverController.Connected(serverId))
+                    if (General.tradeServer.serverController.Connected(serverId))
                     {
                         if (DialogResult.OK == MessageBox.Show("Do you really want to disconnect Server " + serverId, "Info", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2))
                         {
-                            tradeServer.serverController.DisconnectServer(serverId);
+                            General.tradeServer.serverController.DisconnectServer(serverId);
                             listViewHitTestInfo.Item.ForeColor = Color.Red;
                             listViewHitTestInfo.Item.SubItems[3].Text = "DISCONNECTED";
                         }
                     }
                     else
                     {
-                        if (tradeServer.serverController.ConnectToBackend(serverId))
+                        if (General.tradeServer.serverController.ConnectToBackend(serverId))
                         {
                             listViewHitTestInfo.Item.ForeColor = Color.Green;
                             listViewHitTestInfo.Item.SubItems[3].Text = "CONNECTED";
@@ -304,6 +319,7 @@ namespace Moderator_Server
                 TradeServer.logger.WriteLine(ex.ToString());
             }
         }
+        //done--------------
         public void updateServerStatus()
         {
             try
@@ -319,7 +335,7 @@ namespace Moderator_Server
                     {
                         foreach (int i in ServerGuiInstance.Keys)
                         {
-                            if (tradeServer.serverController.Connected(i))
+                            if (General.tradeServer.serverController.Connected(i))
                             {
                                 ServerGuiInstance[i].ForeColor = Color.Green;
                                 ServerGuiInstance[i].SubItems[3].Text = "CONNECTED";
@@ -337,15 +353,16 @@ namespace Moderator_Server
             }
             catch(Exception ex) { TradeServer.logger.WriteLine(ex.ToString()); }
         }
-
+        //not required
         private void MainForm_MaximumSizeChanged(object sender, EventArgs e)
         {
             //groupBox2.Visible = true;
             //groupBox2.Size = new System.Drawing.Size(400, 418);
 
         }
+        //done
         delegate void updatest();
-
+        //done
         public void loadclientdetails()
         {
             if (this.InvokeRequired)
@@ -357,11 +374,11 @@ namespace Moderator_Server
             {
                 try
                 {
-                    foreach (int id in tradeServer.clntManager.ClientDataBase.Keys)
+                    foreach (int id in General.tradeServer.clntManager.ClientDataBase.Keys)
                     {
                         ListViewItem itm = new ListViewItem(id.ToString().Trim());
                         itm.Name = id.ToString().Trim();
-                        itm.SubItems.Add(tradeServer.clntManager.ClientDataBase[id].ClientName);
+                        itm.SubItems.Add(General.tradeServer.clntManager.ClientDataBase[id].ClientName);
                         itm.SubItems.Add("DISCONNECTED");
                         itm.ForeColor = Color.Red;
                         lvclientdetails.Items.Add(itm);
@@ -372,6 +389,7 @@ namespace Moderator_Server
 
 
         }
+        //done
         public void UpdatestatusServercon()
         {
             if (this.InvokeRequired)
@@ -384,14 +402,14 @@ namespace Moderator_Server
                 try
                 {
                   
-                        int count = tradeServer.clntManager.ClientDataBase.Count;
-                    foreach (int id in tradeServer.clntManager.ClientDataBase.Keys)
+                        int count = General.tradeServer.clntManager.ClientDataBase.Count;
+                    foreach (int id in General.tradeServer.clntManager.ClientDataBase.Keys)
                     {
                         if (lvclientdetails.Items.ContainsKey(id.ToString().Trim()))
                         {
 
-                            string servername = tradeServer.clntManager.ClientDataBase[id].ClientName + '(' + id + ')';
-                            if (tradeServer.clntManager.Checkconnection(id))
+                            string servername = General.tradeServer.clntManager.ClientDataBase[id].ClientName + '(' + id + ')';
+                            if (General.tradeServer.clntManager.Checkconnection(id))
                             {
                                 lvclientdetails.Items[id.ToString()].SubItems[2].Text = "CONNECTED";
                                 lvclientdetails.Items[id.ToString()].ForeColor = Color.Green;
@@ -494,6 +512,7 @@ namespace Moderator_Server
             catch { }
         }
 
+        //done
         private void Reload_btn_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Do you really want to update Moderator Details", "Reload",MessageBoxButtons.YesNo,MessageBoxIcon.Question,MessageBoxDefaultButton.Button2,MessageBoxOptions.DefaultDesktopOnly)==DialogResult.Yes)
@@ -505,9 +524,9 @@ namespace Moderator_Server
                     try
                     {
                         string path = Constant.path.startUpPath + "\\ModeratorDetail.txt";
-                        tradeServer.serverController.LoadServerDetails(path);
+                        General.tradeServer.serverController.LoadServerDetails(path);
                         AddServerToGui(path);
-                        tradeServer.ctclDataBase.LoadCtclFile();
+                        General.tradeServer.ctclDataBase.LoadCtclFile();
                     }
                     catch(Exception ex)
                     {
@@ -516,14 +535,14 @@ namespace Moderator_Server
                 }
             }
         }
-
+        //done
         private void timer1_Tick(object sender, EventArgs e)
         {
             try
             {
-                ModTrade.Text = tradeServer.GetTotalTradeCount().ToString();
+                ModTrade.Text = General.tradeServer.GetTotalTradeCount().ToString();
 
-                tradeServer.serverController.UpdateNeatLTTAfterATime();
+                General.tradeServer.serverController.UpdateNeatLTTAfterATime();
             }
             catch { }
         }
@@ -543,14 +562,16 @@ namespace Moderator_Server
         //        }
         //    }
         //}
-
+        //done
         public void UpdateNeatDetails(ConcurrentDictionary<int,UserDtStruct>dicNeatData)
         {
            
             UpdateList(dicNeatData);
             
         }
+        //dones
         delegate void UpdateListdata(ConcurrentDictionary<int, UserDtStruct> dicNeatData);
+        //done
         public void UpdateList(ConcurrentDictionary<int, UserDtStruct> dicNeatData)
         {
             try
@@ -589,7 +610,7 @@ namespace Moderator_Server
             }
 
         }
-
+      //done
         private void lvUserDetails_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -604,10 +625,13 @@ namespace Moderator_Server
                 }
             }
         }
+        //done
         private void UserDetails_Click(object sender, EventArgs e)
         {
-            Setting setting = new Setting(lvUserDetails,this.Top+lvUserDetails.Top,this.Left+lvUserDetails.Left);
+            Setting setting = new Setting(lvUserDetails, this.Top + lvUserDetails.Top, this.Left + lvUserDetails.Left);
             setting.ShowDialog();
         }
+
+
     }
 }
