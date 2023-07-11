@@ -1,4 +1,5 @@
 ﻿using Moderator_Server.GUI;
+using Moderator_Server.Margin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,9 @@ namespace Moderator_Server.Constant
         public static DocKForm DockForm;
 
         public static TradeServer tradeServer = new TradeServer();
+
+
+        public static MarginWatchManager marginWatchManager = new MarginWatchManager();
         #endregion
     }
 }

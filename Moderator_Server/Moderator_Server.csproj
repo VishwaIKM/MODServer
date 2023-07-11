@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,9 +35,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.2.0.143\lib\net461\Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite, Version=1.0.118.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\lib\net46\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Design" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -45,6 +53,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="VishwaControlLib">
+      <HintPath>..\..\..\WorkSpace\VishwaWinformControlDesign\VishwaControlLib\VishwaControlLib\bin\Debug\VishwaControlLib.dll</HintPath>
+    </Reference>
     <Reference Include="WeifenLuo.WinFormsUI.Docking, Version=3.0.4.0, Culture=neutral, PublicKeyToken=5cded1a1a0a7b481, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Debug\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
@@ -94,6 +105,8 @@
     <Compile Include="GUI\UserForm.Designer.cs">
       <DependentUpon>UserForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Margin\MarginWatchManager.cs" />
+    <Compile Include="Margin\MarginWatchModel.cs" />
     <Compile Include="Resources\Contract.cs" />
     <Compile Include="Resources\CtclDataBase.cs" />
     <Compile Include="GUI\DocKForm.cs">
@@ -163,6 +176,8 @@
     <EmbeddedResource Include="GUI\GUI BACKUP\UserDetails.resx">
       <DependentUpon>UserDetails.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="MOD_SERVER_DB.db" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -178,6 +193,13 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Moderator_Server.Constant;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,6 +17,13 @@ namespace Moderator_Server.GUI
         public ClientMargin()
         {
             InitializeComponent();
+          
+        }
+
+        private void RestrictionSetting_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(General.marginWatchManager != null) 
+                General.marginWatchManager.UpdateRestrictionsDataForALLTrader();
         }
     }
 }
